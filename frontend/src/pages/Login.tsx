@@ -8,6 +8,7 @@ import {
   Paper,
   Alert,
 } from "@mui/material"
+import { useLoginMutation } from "../redux/api/authApi"
 
 interface LoginFormData {
   email: string
@@ -15,6 +16,7 @@ interface LoginFormData {
 }
 
 export default function Login() {
+  const [login] = useLoginMutation()
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
@@ -24,8 +26,9 @@ export default function Login() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     try {
-      console.log("Login attempt with:", formData)
-    } catch (err) {
+      await login(formData).unwrap()
+    } catch (e) {
+      console.error(e)
       setError("Login failed. Please try again.")
     }
   }
