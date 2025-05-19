@@ -5,6 +5,7 @@ import Login from "./pages/Login"
 import Register from "./pages/Register"
 import { Provider } from "react-redux"
 import { store } from "./redux/store"
+import Employees from "./pages/Employees"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -13,6 +14,7 @@ createRoot(document.getElementById("root")!).render(
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/employees" element={<Employees />} />
         </Routes>
       </BrowserRouter>
     </Provider>
