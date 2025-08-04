@@ -6,6 +6,7 @@ import Register from "./pages/Register"
 import { Provider } from "react-redux"
 import { store } from "./redux/store"
 import Employees from "./pages/Employees"
+import ShiftTemplate from "./pages/ShiftTemplate"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -15,6 +16,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/employees" element={<Employees />} />
+          <Route path="/shift-template" element={<ShiftTemplate />} />
         </Routes>
       </BrowserRouter>
     </Provider>
