@@ -9,6 +9,8 @@ import {
   Alert,
 } from "@mui/material"
 import { useLoginMutation } from "../redux/api/authApi"
+import { useNavigate } from "react-router"
+import getErrorMessage from "../utils/getErrorMessage"
 
 interface LoginFormData {
   email: string
@@ -17,23 +19,24 @@ interface LoginFormData {
 
 export default function Login() {
   const [login] = useLoginMutation()
+  const navigate = useNavigate()
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
   })
-  const [error, setError] = useState<string>("")
+  const [errorMessage, setErrorMessage] = useState<string>()
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
+  async function handleSubmit() {
     try {
+      setErrorMessage(undefined)
       await login(formData).unwrap()
+      navigate("/dashboard")
     } catch (e) {
-      console.error(e)
-      setError("Login failed. Please try again.")
+      setErrorMessage(getErrorMessage(e))
     }
   }
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = event.target
     setFormData((prev) => ({
       ...prev,
@@ -65,9 +68,9 @@ export default function Login() {
             Sign in
           </Typography>
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-            {error && (
+            {errorMessage && (
               <Alert severity="error" sx={{ mb: 2 }}>
-                {error}
+                {errorMessage}
               </Alert>
             )}
             <TextField
