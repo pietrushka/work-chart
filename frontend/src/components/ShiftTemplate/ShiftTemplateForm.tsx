@@ -61,8 +61,9 @@ export default function ShiftTemplateForm({
     })
   }
 
-  async function handleSubmit() {
+  async function handleSubmit(e: React.FormEvent) {
     try {
+      e.preventDefault()
       setErrorMessage(undefined)
       onSubmit(form)
       setForm(initialValues)

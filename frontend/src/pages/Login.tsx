@@ -1,4 +1,4 @@
-import { useState } from "react"
+import React, { useState } from "react"
 import {
   Box,
   Button,
@@ -26,11 +26,12 @@ export default function Login() {
   })
   const [errorMessage, setErrorMessage] = useState<string>()
 
-  async function handleSubmit() {
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
     try {
       setErrorMessage(undefined)
       await login(formData).unwrap()
-      navigate("/dashboard")
+      navigate("/")
     } catch (e) {
       setErrorMessage(getErrorMessage(e))
     }

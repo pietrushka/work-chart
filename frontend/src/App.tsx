@@ -7,6 +7,7 @@ import ShiftTemplate from "./pages/ShiftTemplate"
 import ProtectedRoute from "./components/ProtectedRoute"
 import { useGetCurrentUserQuery } from "./redux/api/authApi"
 import { UserRole } from "./types/auth"
+import Dashboard from "./pages/Dashboard"
 
 export default function App() {
   const { data: currentUser, isFetching } = useGetCurrentUserQuery()
@@ -25,6 +26,18 @@ export default function App() {
         >
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+        </Route>
+
+        <Route
+          element={
+            <ProtectedRoute
+              isAllowed={!!currentUser}
+              isLoading={isFetching}
+              redirectPath="/login"
+            />
+          }
+        >
+          <Route path="/" element={<Dashboard />} />
         </Route>
 
         <Route

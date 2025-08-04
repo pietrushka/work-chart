@@ -19,12 +19,14 @@ export const authApi = createApi({
     baseUrl: `${import.meta.env.VITE_API_URL}/auth`,
     credentials: "include",
   }),
+  tagTypes: ["CurrentUser"],
   endpoints: (builder) => ({
     getCurrentUser: builder.query<CurrentUserResponse, void>({
       query: () => ({
         url: "/me",
         method: "GET",
       }),
+      providesTags: ["CurrentUser"],
     }),
     register: builder.mutation<MessageResponse, RegisterPayload>({
       query: (body) => ({
@@ -39,6 +41,7 @@ export const authApi = createApi({
         method: "POST",
         body,
       }),
+      invalidatesTags: ["CurrentUser"],
     }),
   }),
 })
