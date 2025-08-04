@@ -2,6 +2,17 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 import { RegisterPayload, LoginPayload } from "../../types/auth"
 import { MessageResponse } from "../../types/common"
 
+type CurrentUserResponse = {
+  email: string
+  first_name: string
+  last_name: string
+  role: string
+  company: {
+    id: string
+    name: string
+  }
+}
+
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
@@ -9,6 +20,12 @@ export const authApi = createApi({
     credentials: "include",
   }),
   endpoints: (builder) => ({
+    getCurrentUser: builder.query<CurrentUserResponse, void>({
+      query: () => ({
+        url: "/me",
+        method: "GET",
+      }),
+    }),
     register: builder.mutation<MessageResponse, RegisterPayload>({
       query: (body) => ({
         url: "/register",
@@ -26,4 +43,5 @@ export const authApi = createApi({
   }),
 })
 
-export const { useRegisterMutation, useLoginMutation } = authApi
+export const { useGetCurrentUserQuery, useRegisterMutation, useLoginMutation } =
+  authApi

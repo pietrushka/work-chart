@@ -1,3 +1,8 @@
+export enum UserRole {
+  ADMIN = "ADMIN",
+  WORKER = "WORKER",
+}
+
 export type RegisterPayload = {
   email: string
   password: string
