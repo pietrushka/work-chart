@@ -18,6 +18,7 @@ export default function EditShiftTemplate({
 
   async function onSubmit(values: ShiftTemplateFormValues) {
     await updateShiftTemplate({ id, ...values }).unwrap()
+    onClose()
   }
 
   return (
