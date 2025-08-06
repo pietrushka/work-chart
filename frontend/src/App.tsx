@@ -8,6 +8,7 @@ import ProtectedRoute from "./components/ProtectedRoute"
 import { useGetCurrentUserQuery } from "./redux/api/authApi"
 import { UserRole } from "./types/auth"
 import Dashboard from "./pages/Dashboard"
+import ActivateAccount from "./pages/ActivateAccount"
 
 export default function App() {
   const { data: currentUser, isFetching } = useGetCurrentUserQuery()
@@ -15,6 +16,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/activate-account/:token" element={<ActivateAccount />} />
+
         <Route
           element={
             <ProtectedRoute

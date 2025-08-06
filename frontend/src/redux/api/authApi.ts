@@ -1,5 +1,9 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
-import { RegisterPayload, LoginPayload } from "../../types/auth"
+import {
+  RegisterPayload,
+  LoginPayload,
+  ActivateAccountPayload,
+} from "../../types/auth"
 import { MessageResponse } from "../../types/common"
 
 type CurrentUserResponse = {
@@ -43,8 +47,19 @@ export const authApi = createApi({
       }),
       invalidatesTags: ["CurrentUser"],
     }),
+    activateAccount: builder.mutation<MessageResponse, ActivateAccountPayload>({
+      query: (body) => ({
+        url: "/activate-account",
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 })
 
-export const { useGetCurrentUserQuery, useRegisterMutation, useLoginMutation } =
-  authApi
+export const {
+  useGetCurrentUserQuery,
+  useRegisterMutation,
+  useLoginMutation,
+  useActivateAccountMutation,
+} = authApi

@@ -14,3 +14,8 @@ export type LoginPayload = {
   email: string
   password: string
 }
+
+export type ActivateAccountPayload = {
+  token: string
+  password: string
+}
