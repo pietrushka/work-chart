@@ -41,11 +41,13 @@ export default function ActivateAccount() {
       }
 
       setErrorMessage(undefined)
+
       await activateAccount({
         password: formData.password,
         token,
       }).unwrap()
-      navigate("/")
+
+      navigate("/login")
     } catch (e) {
       setErrorMessage(getErrorMessage(e))
     }
