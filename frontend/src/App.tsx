@@ -4,15 +4,16 @@ import Login from "./pages/Login"
 import Register from "./pages/Register"
 import Employees from "./pages/Employees"
 import ShiftTemplate from "./pages/ShiftTemplate"
+import Dashboard from "./pages/Dashboard"
+import ActivateAccount from "./pages/ActivateAccount"
 import ProtectedRoute from "./components/ProtectedRoute"
 import { useGetCurrentUserQuery } from "./redux/api/authApi"
 import { UserRole } from "./types/auth"
-import Dashboard from "./pages/Dashboard"
-import ActivateAccount from "./pages/ActivateAccount"
 
 export default function App() {
-  const { data: currentUser, isFetching } = useGetCurrentUserQuery()
+  const { data, isError, isFetching } = useGetCurrentUserQuery()
 
+  const currentUser = isError ? undefined : data
   return (
     <BrowserRouter>
       <Routes>
@@ -23,7 +24,7 @@ export default function App() {
             <ProtectedRoute
               isAllowed={!currentUser}
               isLoading={false}
-              redirectPath="/employees"
+              redirectPath="/"
             />
           }
         >
