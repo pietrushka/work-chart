@@ -9,6 +9,7 @@ import ActivateAccount from "./pages/ActivateAccount"
 import ProtectedRoute from "./components/ProtectedRoute"
 import { useGetCurrentUserQuery } from "./redux/api/authApi"
 import { UserRole } from "./types/auth"
+import ManageWorkerShift from "./pages/ManageWorkerShift"
 
 export default function App() {
   const { data, isError, isFetching } = useGetCurrentUserQuery()
@@ -55,6 +56,7 @@ export default function App() {
         >
           <Route path="/employees" element={<Employees />} />
           <Route path="/shift-template" element={<ShiftTemplate />} />
+          <Route path="/manage-worker-shift" element={<ManageWorkerShift />} />
         </Route>
       </Routes>
     </BrowserRouter>
