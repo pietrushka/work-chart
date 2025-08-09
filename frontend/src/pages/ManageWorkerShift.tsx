@@ -31,7 +31,7 @@ import {
   useGetWorkersShiftsQuery,
   useAddWorkerShiftMutation,
 } from "../redux/api/workerShiftApi"
-import ShilftCalendar from "../components/WorkerShift/ShilftCalendar"
+import Calendar, { CalendarEvent } from "../components/WorkerShift/Calendar"
 
 export default function ManageWorkerShift() {
   const { data: shiftTemplates, isLoading: isLoadingShifts } =
@@ -106,15 +106,25 @@ export default function ManageWorkerShift() {
         Manage Worker Shifts
       </Typography>
 
-      <ShilftCalendar
-        shiftTemplates={shifts}
-        workerShifts={workerShifts}
-        openAssignShiftModal={(templateId, startDateTime, endDateTime) => {
-          setSelectedShift(templateId)
-          setSelectedStartDateTime(startDateTime)
-          setSelectedEndDateTime(endDateTime)
-          setShowAssignmentDialog(true)
-        }}
+      <Calendar
+        standardEvents={workerShifts.map((x) => ({
+          label: shifts.find((y) => y.id === x.template_id)?.name || "unknown",
+          start_date: x.start_date,
+          end_date: x.end_date,
+        }))}
+        recurringEvents={shifts.map((x) => ({
+          label: x.name,
+          start_time: x.startTime,
+          end_time: x.endTime,
+          weekDays: x.days,
+          onClick: (event: CalendarEvent) => {
+            console.log({ event })
+            setSelectedShift(x.id)
+            setSelectedStartDateTime(event.startDateTime.toISOString())
+            setSelectedEndDateTime(event.endDateTime.toISOString())
+            setShowAssignmentDialog(true)
+          },
+        }))}
       />
 
       {successMessage && (
