@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { Dispatch, SetStateAction, useMemo, useState } from "react"
 import {
   addDays,
   addMonths,
@@ -15,8 +15,10 @@ import {
   startOfMonth,
   startOfWeek,
   subMonths,
+  startOfDay,
+  endOfDay,
 } from "date-fns"
-import { Box, IconButton, Typography } from "@mui/material"
+import { Box, IconButton, Typography, ButtonGroup, Button } from "@mui/material"
 import ChevronLeft from "@mui/icons-material/ChevronLeft"
 import ChevronRight from "@mui/icons-material/ChevronRight"
 import { ShiftTemplate } from "../../types/shiftTemplate"
@@ -47,37 +49,56 @@ type CalendarEvent = {
   endDateTime?: string
 }
 
+type View = "month" | "week" | "day"
+
 export default function ShilftCalendar({
   shiftTemplates,
   workerShifts,
   openAssignShiftModal,
 }: ShilftCalendarProps) {
-  const [currentMonth, setCurrentMonth] = useState<Date>(new Date())
+  const [currentDate, setCurrentDate] = useState<Date>(new Date())
+  const [view, setView] = useState<View>("month")
 
   const { weeks, dayLabels, eventsByDate } = useMemo(() => {
-    const monthStart = startOfMonth(currentMonth)
+    const monthStart = startOfMonth(currentDate)
     const monthEnd = endOfMonth(monthStart)
-    const calendarStart = startOfWeek(monthStart, {
-      weekStartsOn: WEEK_STARTS_ON,
-    })
-    const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: WEEK_STARTS_ON })
 
-    const headerStart = startOfWeek(currentMonth, {
+    const rangeStart =
+      view === "month"
+        ? startOfWeek(monthStart, { weekStartsOn: WEEK_STARTS_ON })
+        : view === "week"
+          ? startOfWeek(currentDate, { weekStartsOn: WEEK_STARTS_ON })
+          : startOfDay(currentDate)
+    const rangeEnd =
+      view === "month"
+        ? endOfWeek(monthEnd, { weekStartsOn: WEEK_STARTS_ON })
+        : view === "week"
+          ? endOfWeek(currentDate, { weekStartsOn: WEEK_STARTS_ON })
+          : endOfDay(currentDate)
+
+    const headerStart = startOfWeek(currentDate, {
       weekStartsOn: WEEK_STARTS_ON,
     })
-    const labels: string[] = Array.from({ length: 7 }).map((_, idx) =>
-      format(addDays(headerStart, idx), "EEE"),
-    )
+    const labels: string[] =
+      view === "day"
+        ? [format(currentDate, "EEE")]
+        : Array.from({ length: 7 }).map((_, idx) =>
+            format(addDays(headerStart, idx), "EEE"),
+          )
 
     const allWeeks: Date[][] = []
-    let day = calendarStart
-    while (day <= calendarEnd) {
-      const week: Date[] = []
-      for (let i = 0; i < 7; i += 1) {
-        week.push(day)
-        day = addDays(day, 1)
+    if (view === "day") {
+      allWeeks.push([currentDate])
+    } else {
+      let day = rangeStart
+      while (day <= rangeEnd) {
+        const week: Date[] = []
+        for (let i = 0; i < 7; i += 1) {
+          week.push(day)
+          day = addDays(day, 1)
+        }
+        allWeeks.push(week)
       }
-      allWeeks.push(week)
     }
 
     const templateById = new Map(shiftTemplates.map((t) => [t.id, t]))
@@ -110,8 +131,8 @@ export default function ShilftCalendar({
     }
 
     // Fill in recurring template events across the displayed calendar range
-    let d = calendarStart
-    while (d <= calendarEnd) {
+    let d = rangeStart
+    while (d <= rangeEnd) {
       const dow = getDay(d) // 0 (Sun) - 6 (Sat)
       const key = format(d, "yyyy-MM-dd")
       for (const tpl of shiftTemplates) {
@@ -134,11 +155,7 @@ export default function ShilftCalendar({
     }
 
     return { weeks: allWeeks, dayLabels: labels, eventsByDate }
-  }, [currentMonth, shiftTemplates, workerShifts])
-
-  const goPrev = () => setCurrentMonth((d) => subMonths(d, 1))
-  const goNext = () => setCurrentMonth((d) => addMonths(d, 1))
-  const goToday = () => setCurrentMonth(new Date())
+  }, [currentDate, view, shiftTemplates, workerShifts])
 
   function buildDateWithTime(baseDate: Date, hhmm: string): Date {
     const [hoursStr, minutesStr] = hhmm.split(":")
@@ -149,40 +166,20 @@ export default function ShilftCalendar({
 
   return (
     <Box sx={{ width: "100%", maxWidth: 720, mx: "auto" }}>
-      {/* Header with month navigation */}
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          mb: 1,
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <IconButton aria-label="Previous month" onClick={goPrev} size="small">
-            <ChevronLeft />
-          </IconButton>
-          <IconButton aria-label="Next month" onClick={goNext} size="small">
-            <ChevronRight />
-          </IconButton>
-        </Box>
+      <CalendarControls
+        currentDate={currentDate}
+        setCurrentDate={setCurrentDate}
+        view={view}
+        setView={setView}
+      />
 
-        <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>
-          {format(currentMonth, "MMMM yyyy")}
-        </Typography>
-
-        <Box>
-          <IconButton aria-label="Today" onClick={goToday} size="small">
-            <Typography variant="button">Today</Typography>
-          </IconButton>
-        </Box>
-      </Box>
-
-      {/* Day of week labels */}
+      {/* Day labels */}
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: "repeat(7, 1fr)",
+          border: "1px solid red",
+          gridTemplateColumns:
+            view === "day" ? "repeat(1, 1fr)" : "repeat(7, 1fr)",
           gap: 0.5,
           mb: 0.5,
           px: 0.5,
@@ -202,14 +199,16 @@ export default function ShilftCalendar({
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: "repeat(7, 1fr)",
+          gridTemplateColumns:
+            view === "day" ? "repeat(1, 1fr)" : "repeat(7, 1fr)",
           gap: 0.5,
         }}
       >
         {weeks.map((week, wIdx) => (
           <Box key={`wk-${wIdx}`} sx={{ display: "contents" }}>
             {week.map((day) => {
-              const outside = !isSameMonth(day, currentMonth)
+              const outside =
+                view === "month" ? !isSameMonth(day, currentDate) : false
               const today = isToday(day)
               const key = format(day, "yyyy-MM-dd")
               const events = eventsByDate[key] ?? []
@@ -217,7 +216,8 @@ export default function ShilftCalendar({
                 <Box
                   key={`${wIdx}-${key}`}
                   sx={{
-                    aspectRatio: "1 / 1",
+                    aspectRatio: view === "day" ? "auto" : "1 / 1",
+                    minHeight: view === "day" ? 180 : undefined,
                     p: 0.75,
                     borderRadius: 1,
                     border: "1px solid",
@@ -300,6 +300,85 @@ export default function ShilftCalendar({
             })}
           </Box>
         ))}
+      </Box>
+    </Box>
+  )
+}
+
+type CalendarControlsProps = {
+  currentDate: Date
+  setCurrentDate: Dispatch<SetStateAction<Date>>
+  view: View
+  setView: Dispatch<SetStateAction<View>>
+}
+
+function CalendarControls({
+  currentDate,
+  setCurrentDate,
+  view,
+  setView,
+}: CalendarControlsProps) {
+  const goPrev = () =>
+    setCurrentDate((d) =>
+      view === "month"
+        ? subMonths(d, 1)
+        : addDays(d, view === "week" ? -7 : -1),
+    )
+  const goNext = () =>
+    setCurrentDate((d) =>
+      view === "month" ? addMonths(d, 1) : addDays(d, view === "week" ? 7 : 1),
+    )
+  const goToday = () => setCurrentDate(new Date())
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        mb: 1,
+      }}
+    >
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <IconButton aria-label="Previous month" onClick={goPrev} size="small">
+          <ChevronLeft />
+        </IconButton>
+        <IconButton aria-label="Next month" onClick={goNext} size="small">
+          <ChevronRight />
+        </IconButton>
+      </Box>
+
+      <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>
+        {view === "month" && format(currentDate, "MMMM yyyy")}
+        {view === "week" &&
+          `${format(startOfWeek(currentDate, { weekStartsOn: WEEK_STARTS_ON }), "d MMM")} – ${format(endOfWeek(currentDate, { weekStartsOn: WEEK_STARTS_ON }), "d MMM yyyy")}`}
+        {view === "day" && format(currentDate, "EEE, d MMM yyyy")}
+      </Typography>
+
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <ButtonGroup size="small" variant="outlined">
+          <Button
+            variant={view === "month" ? "contained" : "outlined"}
+            onClick={() => setView("month")}
+          >
+            Month
+          </Button>
+          <Button
+            variant={view === "week" ? "contained" : "outlined"}
+            onClick={() => setView("week")}
+          >
+            Week
+          </Button>
+          <Button
+            variant={view === "day" ? "contained" : "outlined"}
+            onClick={() => setView("day")}
+          >
+            Day
+          </Button>
+        </ButtonGroup>
+        <IconButton aria-label="Today" onClick={goToday} size="small">
+          <Typography variant="button">Today</Typography>
+        </IconButton>
       </Box>
     </Box>
   )
