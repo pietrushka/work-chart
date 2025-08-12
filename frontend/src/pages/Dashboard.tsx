@@ -1,33 +1,14 @@
-import { Link } from "react-router"
-import { Button, Box } from "@mui/material"
-import { useLogoutMutation } from "../redux/api/authApi"
-
-const adminOptions = [
-  { label: "Employees", to: "/employees" },
-  { label: "Shift Template", to: "/shift-template" },
-  { label: "Manage Worker Shifts", to: "/manage-worker-shift" },
-]
+import { UserRole } from "../types/auth"
+import AdminDashboard from "../components/Admin/AdminDashboard"
+import EmployeeDashboard from "../components/Employee/EmployeeDashboard"
+import useUser from "../hooks./useUser"
 
 export default function Dashboard() {
-  const [logout] = useLogoutMutation()
+  const currentUser = useUser()
 
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "end",
-      }}
-    >
-      <Box sx={{ display: "flex", gap: 1 }}>
-        {adminOptions.map(({ label, to }) => (
-          <Button component={Link} to={to} variant="contained">
-            {label}
-          </Button>
-        ))}
-        <Button onClick={() => logout()} variant="outlined" color="error">
-          Logout
-        </Button>
-      </Box>
-    </Box>
-  )
+  if (currentUser?.role === UserRole.ADMIN) {
+    return <AdminDashboard />
+  }
+
+  return <EmployeeDashboard />
 }
