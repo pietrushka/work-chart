@@ -11,7 +11,7 @@ import {
 import {
   useGetShiftTemplatesQuery,
   useDeleteShiftTemplateMutation,
-} from "../../redux/api/shiftTemplateApi"
+} from "../../../redux/api/shiftTemplateApi"
 import EditShiftTemplate from "./EditShiftTemplate"
 
 export default function ShiftList() {

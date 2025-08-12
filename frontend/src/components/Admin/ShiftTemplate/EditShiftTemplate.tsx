@@ -1,5 +1,5 @@
-import { ShiftTemplateFormValues } from "../../types/shiftTemplate"
-import { useUpdateShiftTemplateMutation } from "../../redux/api/shiftTemplateApi"
+import { ShiftTemplateFormValues } from "../../../types/shiftTemplate"
+import { useUpdateShiftTemplateMutation } from "../../../redux/api/shiftTemplateApi"
 import ShiftTemplateForm from "./ShiftTemplateForm"
 import { Dialog, DialogTitle, Paper } from "@mui/material"
 

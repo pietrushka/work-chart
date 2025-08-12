@@ -11,7 +11,7 @@ import {
 import {
   useDeleteEmployeeMutation,
   useGetEmployeesQuery,
-} from "../../redux/api/employeeApi"
+} from "../../../redux/api/employeeApi"
 import EditEmployee from "./EditEmployee"
 
 export default function EmployeeList() {

@@ -1,8 +1,8 @@
-import { ShiftTemplateFormValues } from "../../types/shiftTemplate"
-import { useAddShiftTemplateMutation } from "../../redux/api/shiftTemplateApi"
+import { ShiftTemplateFormValues } from "../../../types/shiftTemplate"
+import { useAddShiftTemplateMutation } from "../../../redux/api/shiftTemplateApi"
 import ShiftTemplateForm from "./ShiftTemplateForm"
 import { Paper, Typography } from "@mui/material"
-import { positions } from "../../constants"
+import { positions } from "../../../constants"
 
 const initialValues = {
   name: "",

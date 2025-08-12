@@ -1,8 +1,8 @@
 import { Paper, Typography } from "@mui/material"
 import EmployeeForm from "./EmployeeForm"
-import { positions } from "../../constants"
-import { EmployeeFormValues } from "../../types/employee"
-import { useAddEmployeeMutation } from "../../redux/api/employeeApi"
+import { positions } from "../../../constants"
+import { EmployeeFormValues } from "../../../types/employee"
+import { useAddEmployeeMutation } from "../../../redux/api/employeeApi"
 
 const initialValues = {
   first_name: "",

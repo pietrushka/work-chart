@@ -1,6 +1,6 @@
 import { Box, Typography, Container } from "@mui/material"
-import AddEmployee from "../components/Employee/AddEmployee"
-import EmployeeList from "../components/Employee/EmployeeList"
+import AddEmployee from "../components/Admin/Employee/AddEmployee"
+import EmployeeList from "../components/Admin/Employee/EmployeeList"
 
 export default function EmployeesPage() {
   return (

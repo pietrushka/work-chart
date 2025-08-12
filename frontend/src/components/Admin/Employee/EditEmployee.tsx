@@ -1,6 +1,6 @@
 import { Dialog, DialogTitle, Paper } from "@mui/material"
-import { EmployeeFormValues } from "../../types/employee"
-import { useUpdateEmployeeMutation } from "../../redux/api/employeeApi"
+import { EmployeeFormValues } from "../../../types/employee"
+import { useUpdateEmployeeMutation } from "../../../redux/api/employeeApi"
 import EmployeeForm from "./EmployeeForm"
 
 type EditEmployeeProps = {

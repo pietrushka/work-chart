@@ -31,7 +31,7 @@ import {
   useGetWorkersShiftsQuery,
   useAddWorkerShiftMutation,
 } from "../redux/api/workerShiftApi"
-import Calendar, { CalendarEvent } from "../components/WorkerShift/Calendar"
+import Calendar, { CalendarEvent } from "../components/Calendar"
 
 export default function ManageWorkerShift() {
   const { data: shiftTemplates, isLoading: isLoadingShifts } =

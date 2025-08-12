@@ -1,6 +1,6 @@
 import { Box, Container, Typography } from "@mui/material"
-import AddShift from "../components/ShiftTemplate/AddShiftTemplate"
-import ShiftList from "../components/ShiftTemplate/ShiftTemplateList"
+import AddShift from "../components/Admin/ShiftTemplate/AddShiftTemplate"
+import ShiftList from "../components/Admin/ShiftTemplate/ShiftTemplateList"
 
 export default function ShiftTemplate() {
   return (

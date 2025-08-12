@@ -10,9 +10,9 @@ import {
   SelectChangeEvent,
   Alert,
 } from "@mui/material"
-import { EmployeeFormValues } from "../../types/employee"
-import getErrorMessage from "../../utils/getErrorMessage"
-import { positions } from "../../constants"
+import { EmployeeFormValues } from "../../../types/employee"
+import getErrorMessage from "../../../utils/getErrorMessage"
+import { positions } from "../../../constants"
 
 type EmployeeFormProps = {
   initialValues: EmployeeFormValues

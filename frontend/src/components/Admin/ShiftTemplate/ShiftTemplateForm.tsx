@@ -14,9 +14,9 @@ import {
 import {
   ShiftTemplate,
   ShiftTemplateFormValues,
-} from "../../types/shiftTemplate"
-import getErrorMessage from "../../utils/getErrorMessage"
-import { positions } from "../../constants"
+} from "../../../types/shiftTemplate"
+import getErrorMessage from "../../../utils/getErrorMessage"
+import { positions } from "../../../constants"
 
 const weekdaysOptions = [
   { value: 0, label: "Monday" },
