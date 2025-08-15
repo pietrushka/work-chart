@@ -35,3 +35,7 @@ export function buildDateWithTime(baseDate: Date, hhmm: string): Date {
   const minutes = Number(minutesStr ?? 0)
   return set(baseDate, { hours, minutes, seconds: 0, milliseconds: 0 })
 }
+
+export function removeTimeSeconds(time: string) {
+  return time.substring(0, 5)
+}
