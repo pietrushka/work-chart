@@ -11,6 +11,7 @@ import { useGetCurrentUserQuery } from "./redux/api/authApi"
 import { UserRole } from "./types/auth"
 import ManageWorkerShift from "./pages/ManageWorkerShift"
 import Layout from "./components/Layout"
+import MyShifts from "./pages/MyShifts"
 
 export default function App() {
   const { data, isError, isFetching } = useGetCurrentUserQuery()
@@ -45,6 +46,7 @@ export default function App() {
         >
           <Route element={<Layout />}>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/my-shifts" element={<MyShifts />} />
           </Route>
         </Route>
 

@@ -3,6 +3,8 @@ import { MessageResponse } from "../../types/common"
 import {
   GetWorkersShiftsResponse,
   AddWorkerShiftPayload,
+  GetMyShiftsResponse,
+  RangePayload,
 } from "../../types/workerShift"
 
 export const workerShiftApi = createApi({
@@ -11,12 +13,13 @@ export const workerShiftApi = createApi({
     baseUrl: `${import.meta.env.VITE_API_URL}/worker-shifts`,
     credentials: "include",
   }),
-  tagTypes: ["AdminWorkersShifts"],
+  tagTypes: ["AdminWorkersShifts", "MyShifts"],
   endpoints: (builder) => ({
-    getWorkersShifts: builder.query<GetWorkersShiftsResponse, void>({
-      query: () => ({
+    getWorkersShifts: builder.query<GetWorkersShiftsResponse, RangePayload>({
+      query: (params) => ({
         url: "/company",
         method: "GET",
+        params,
       }),
       providesTags: ["AdminWorkersShifts"],
     }),
@@ -28,6 +31,15 @@ export const workerShiftApi = createApi({
       }),
       invalidatesTags: ["AdminWorkersShifts"],
     }),
+    getMyShifts: builder.query<GetMyShiftsResponse, RangePayload>({
+      query: (params) => ({
+        url: "/my-shifts",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["AdminWorkersShifts"],
+    }),
+
     // deleteWorkerShift: builder.mutation<MessageResponse, string>({
     //   query: (id) => ({
     //     url: `/worker/${id}`,
@@ -46,5 +58,8 @@ export const workerShiftApi = createApi({
   }),
 })
 
-export const { useGetWorkersShiftsQuery, useAddWorkerShiftMutation } =
-  workerShiftApi
+export const {
+  useGetWorkersShiftsQuery,
+  useAddWorkerShiftMutation,
+  useGetMyShiftsQuery,
+} = workerShiftApi

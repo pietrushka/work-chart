@@ -32,6 +32,7 @@ export default function Layout() {
 }
 
 const adminOptions = [
+  { label: "My Shifts", to: "/my-shifts" },
   { label: "Employees", to: "/employees" },
   { label: "Shift Template", to: "/shift-template" },
   { label: "Manage Worker Shifts", to: "/manage-worker-shift" },

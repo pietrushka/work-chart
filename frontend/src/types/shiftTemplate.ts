@@ -1,5 +1,6 @@
 export type ShiftTemplate = {
   id: string
+  company_id: string
   name: string
   position: string
   startTime: string
@@ -11,7 +12,7 @@ export type GetShiftTemplatesResponse = {
   items: Array<ShiftTemplate>
 }
 
-export type ShiftTemplateFormValues = Omit<ShiftTemplate, "id">
+export type ShiftTemplateFormValues = Omit<ShiftTemplate, "id" | "company_id">
 
 export type AddShiftTemplatePayload = ShiftTemplateFormValues
 

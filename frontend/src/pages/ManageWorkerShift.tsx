@@ -32,23 +32,33 @@ import {
   useAddWorkerShiftMutation,
 } from "../redux/api/workerShiftApi"
 import Calendar, { CalendarEvent } from "../components/Calendar"
+import { IRange } from "../types/date"
+import { skipToken } from "@reduxjs/toolkit/query"
 
 export default function ManageWorkerShift() {
-  const { data: shiftTemplates, isLoading: isLoadingShifts } =
-    useGetShiftTemplatesQuery()
-  const { data: employees, isLoading: isLoadingEmployees } =
-    useGetEmployeesQuery()
-  const { data: workerShiftsResponse } = useGetWorkersShiftsQuery()
-  const [addWorkerShift] = useAddWorkerShiftMutation()
-  const workerShifts = workerShiftsResponse?.items || []
-
   const [selectedStartDateTime, setSelectedStartDateTime] = useState<string>()
   const [selectedEndDateTime, setSelectedEndDateTime] = useState<string>()
   const [selectedShift, setSelectedShift] = useState<string>("")
   const [selectedEmployee, setSelectedEmployee] = useState<string>("")
   const [showAssignmentDialog, setShowAssignmentDialog] = useState(false)
   const [successMessage, setSuccessMessage] = useState<string>("")
+  const [filters, setFilters] = useState<IRange>()
 
+  const { data: shiftTemplates, isLoading: isLoadingShifts } =
+    useGetShiftTemplatesQuery()
+  const { data: employees, isLoading: isLoadingEmployees } =
+    useGetEmployeesQuery()
+  const { data: workerShiftsResponse } = useGetWorkersShiftsQuery(
+    // TODO optimize, do not fetch already fetched data
+    filters
+      ? {
+          range_start: filters?.rangeStart.toISOString(),
+          range_end: filters?.rangeEnd.toISOString(),
+        }
+      : skipToken,
+  )
+  const [addWorkerShift] = useAddWorkerShiftMutation()
+  const workerShifts = workerShiftsResponse?.items || []
   const shifts = shiftTemplates?.items || []
   const workers = employees?.items || []
 
@@ -107,6 +117,7 @@ export default function ManageWorkerShift() {
       </Typography>
 
       <Calendar
+        setFilters={setFilters}
         standardEvents={workerShifts.map((x) => ({
           label: shifts.find((y) => y.id === x.template_id)?.name || "unknown",
           start_date: x.start_date,

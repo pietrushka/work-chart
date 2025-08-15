@@ -1,8 +1,7 @@
-import { Dispatch, SetStateAction, useMemo, useState } from "react"
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react"
 import {
   addDays,
   addMonths,
-  endOfMonth,
   endOfWeek,
   format,
   getDay,
@@ -10,22 +9,15 @@ import {
   isToday,
   isValid,
   parseISO,
-  startOfMonth,
   startOfWeek,
   subMonths,
-  startOfDay,
-  endOfDay,
-  set,
   isAfter,
 } from "date-fns"
 import { Box, IconButton, Typography, ButtonGroup, Button } from "@mui/material"
 import ChevronLeft from "@mui/icons-material/ChevronLeft"
 import ChevronRight from "@mui/icons-material/ChevronRight"
-
-// Week starts on Monday
-const WEEK_STARTS_ON = 1 as const
-
-type View = "month" | "week" | "day"
+import { IRange, View, WEEK_STARTS_ON } from "../types/date"
+import { buildDateWithTime, getCalendarRange } from "../utils/dateHelpers"
 
 type StandardEvent = {
   label: string
@@ -43,6 +35,7 @@ type RecurringEvent = {
 type CalendarProps = {
   standardEvents?: Array<StandardEvent>
   recurringEvents?: Array<RecurringEvent>
+  setFilters?: (range: IRange) => void
 }
 
 export type CalendarEvent = {
@@ -88,33 +81,6 @@ function getCalendarWeeks(
     }
   }
   return allWeeks
-}
-
-function getCalendarRange(view: View, currentDate: Date) {
-  const monthStart = startOfMonth(currentDate)
-  const monthEnd = endOfMonth(monthStart)
-
-  const rangeStart =
-    view === "month"
-      ? startOfWeek(monthStart, { weekStartsOn: WEEK_STARTS_ON })
-      : view === "week"
-        ? startOfWeek(currentDate, { weekStartsOn: WEEK_STARTS_ON })
-        : startOfDay(currentDate)
-  const rangeEnd =
-    view === "month"
-      ? endOfWeek(monthEnd, { weekStartsOn: WEEK_STARTS_ON })
-      : view === "week"
-        ? endOfWeek(currentDate, { weekStartsOn: WEEK_STARTS_ON })
-        : endOfDay(currentDate)
-
-  return { rangeStart, rangeEnd }
-}
-
-function buildDateWithTime(baseDate: Date, hhmm: string): Date {
-  const [hoursStr, minutesStr] = hhmm.split(":")
-  const hours = Number(hoursStr ?? 0)
-  const minutes = Number(minutesStr ?? 0)
-  return set(baseDate, { hours, minutes, seconds: 0, milliseconds: 0 })
 }
 
 function computeCalendarEvents(
@@ -181,6 +147,7 @@ function computeCalendarEvents(
 }
 
 export default function Calendar({
+  setFilters,
   standardEvents,
   recurringEvents,
 }: CalendarProps) {
@@ -200,6 +167,12 @@ export default function Calendar({
 
     return { weeks, dayLabels, eventsByDate }
   }, [currentDate, view, standardEvents, recurringEvents])
+
+  useEffect(() => {
+    if (setFilters) {
+      setFilters(getCalendarRange(view, currentDate))
+    }
+  }, [currentDate, view, setFilters])
 
   return (
     <Box sx={{ width: "100%", maxWidth: 720, mx: "auto" }}>
