@@ -7,6 +7,7 @@ import Calendar, { CalendarEvent } from "../components/Calendar"
 import { IRange } from "../types/date"
 import { skipToken } from "@reduxjs/toolkit/query"
 import ManualAssignmentDialog from "../components/ManageShifts/ManualAssignmentDialog"
+import AutoAssignShifts from "../components/ManageShifts/AutoAssignShifts"
 
 export default function ManageWorkerShift() {
   const [selectedStartDateTime, setSelectedStartDateTime] = useState<string>()
@@ -84,6 +85,8 @@ export default function ManageWorkerShift() {
         >
           Assign Employee to Shift
         </Button>
+
+        <AutoAssignShifts />
       </Box>
 
       <ManualAssignmentDialog

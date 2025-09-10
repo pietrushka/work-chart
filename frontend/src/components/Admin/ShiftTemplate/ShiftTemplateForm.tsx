@@ -11,10 +11,7 @@ import {
   SelectChangeEvent,
   Alert,
 } from "@mui/material"
-import {
-  ShiftTemplate,
-  ShiftTemplateFormValues,
-} from "../../../types/shiftTemplate"
+import { ShiftTemplateFormValues } from "../../../types/shiftTemplate"
 import getErrorMessage from "../../../utils/getErrorMessage"
 import { positions } from "../../../constants"
 
@@ -37,7 +34,7 @@ export default function ShiftTemplateForm({
   initialValues,
   onSubmit,
 }: ShiftTemplateFormProps) {
-  const [form, setForm] = useState<Omit<ShiftTemplate, "id">>(initialValues)
+  const [form, setForm] = useState<ShiftTemplateFormValues>(initialValues)
   const [errorMessage, setErrorMessage] = useState<string>()
 
   function handleInputChange(
