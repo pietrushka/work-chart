@@ -1,0 +1,7 @@
+**/__pycache__
+venv/
+.DS_Store
+db.db
+.env
+.env.compose
+todo.md

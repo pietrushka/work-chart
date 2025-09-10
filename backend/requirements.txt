@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+gunicorn
+sqlmodel
+pydantic
+sqlalchemy
+python-decouple
+psycopg2
+PyJWT
+passlib
