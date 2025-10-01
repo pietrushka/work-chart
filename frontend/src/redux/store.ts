@@ -3,12 +3,14 @@ import { authApi } from "./api/authApi"
 import { employeeApi } from "./api/employeeApi"
 import { shiftTemplateApi } from "./api/shiftTemplateApi"
 import { workerShiftApi } from "./api/workerShiftApi"
+import { leaveApi } from "./api/leaveApi"
 
 const middlewares = [
   authApi.middleware,
   employeeApi.middleware,
   shiftTemplateApi.middleware,
   workerShiftApi.middleware,
+  leaveApi.middleware,
 ]
 
 export const store = configureStore({
@@ -17,6 +19,7 @@ export const store = configureStore({
     [employeeApi.reducerPath]: employeeApi.reducer,
     [shiftTemplateApi.reducerPath]: shiftTemplateApi.reducer,
     [workerShiftApi.reducerPath]: workerShiftApi.reducer,
+    [leaveApi.reducerPath]: leaveApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(middlewares),

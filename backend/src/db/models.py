@@ -3,11 +3,10 @@ from typing import List, Optional
 from uuid import UUID, uuid4
 from sqlmodel import Field, Relationship, SQLModel
 from enum import Enum
-from sqlalchemy import Column, ARRAY, Integer
-from sqlalchemy import Column, DateTime
+from sqlalchemy import Column, ARRAY, Integer, DateTime
 
 
-class UserRole(str, Enum):  
+class UserRole(str, Enum):
     ADMIN = "ADMIN"
     WORKER = "WORKER"
 
@@ -68,6 +67,7 @@ class WorkerShiftModel(SQLModel, table=True):
     template_id: Optional[UUID] = Field(default=None, foreign_key="shift_templates.id")
     template: Optional["ShiftTemplateModel"] = Relationship(back_populates="shifts")
 
+
 class ShiftTemplateModel(SQLModel, table=True):
     __tablename__ = "shift_templates"
 
@@ -89,6 +89,21 @@ class TokenModel(SQLModel, table=True):
     user_id: UUID = Field(foreign_key="users.id")
     type: TokenType
     expired_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        sa_column=Column(DateTime(timezone=True)),
+    )
+
+
+class LeaveModel(SQLModel, table=True):
+    __tablename__ = "leaves"
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    user_id: UUID = Field(foreign_key="users.id")
+    company_id: UUID = Field(foreign_key="companies.id")
+    start_date: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        sa_column=Column(DateTime(timezone=True)),
+    )
+    end_date: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),
         sa_column=Column(DateTime(timezone=True)),
     )

@@ -40,7 +40,7 @@ const adminOptions = [
 
 const employeeOptions = [
   { label: "My Shifts", to: "/my-shifts" },
-  { label: "My Time Off", to: "/my-time-off" },
+  { label: "My Leaves", to: "/my-leaves" },
 ]
 
 function Navbar() {
