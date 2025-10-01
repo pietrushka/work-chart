@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
+from decouple import config
 
 from api.auth import auth_service
 from api.common import authenticate_company_admin
 from api.dependencies import authenticate_user
+from api.common import email_service
 from .schemas import AddWorkerPayloadSchema, EditWorkerPayloadSchema
 from db.models import TokenType, UserModel, UserRole
 from db.session import get_session
@@ -13,7 +15,7 @@ router = APIRouter(tags=["users"])
 
 
 @router.post("/create-worker")
-def create_worker(
+async def create_worker(
     payload: AddWorkerPayloadSchema,
     session: Session = Depends(get_session),
     current_user: UserModel = Depends(authenticate_user),
@@ -38,9 +40,16 @@ def create_worker(
 
     new_worker = user_service.create_user(new_worker_data, session)
 
-    auth_service.create_db_token(new_worker.id, TokenType.ACTIVATE_ACCOUNT, session)
+    activate_token = auth_service.create_db_token(
+        new_worker.id, TokenType.ACTIVATE_ACCOUNT, session
+    )
 
-    # TODO send activation email
+    frontend_url = config("FRONTEND_URL")
+    await email_service.send_email(
+        to_emails=[new_worker["email"]],
+        subject="You have been added as a worker",
+        body_text=f"Activation link: {frontend_url}/activate-account/{activate_token}",
+    )
 
     return {"status": "success"}
 

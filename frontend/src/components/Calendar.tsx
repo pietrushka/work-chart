@@ -4,46 +4,33 @@ import {
   addMonths,
   endOfWeek,
   format,
-  getDay,
   isSameMonth,
   isToday,
-  isValid,
-  parseISO,
   startOfWeek,
   subMonths,
-  isAfter,
 } from "date-fns"
 import { Box, IconButton, Typography, ButtonGroup, Button } from "@mui/material"
 import ChevronLeft from "@mui/icons-material/ChevronLeft"
 import ChevronRight from "@mui/icons-material/ChevronRight"
 import { IRange, View, WEEK_STARTS_ON } from "../types/date"
-import { buildDateWithTime, getCalendarRange } from "../utils/dateHelpers"
+import { getCalendarRange } from "../utils/dateHelpers"
 
-type StandardEvent = {
-  label: string
-  start_date: string
-  end_date: string
-}
-type RecurringEvent = {
-  label: string
-  start_time: string
-  end_time: string
-  weekDays: Array<number>
-  onClick: (event: CalendarEvent) => void
-}
-
-type CalendarProps = {
-  standardEvents?: Array<StandardEvent>
-  recurringEvents?: Array<RecurringEvent>
-  setFilters?: (range: IRange) => void
-}
-
+// TODO fix self-referencing type
 export type CalendarEvent = {
   label: string
   timeLabel: string
   startDateTime: Date
   endDateTime: Date
+  sourceId?: string // only for shift templates for now
   onClick?: (event: CalendarEvent) => void
+  subEvents?: Array<CalendarEvent>
+}
+
+export type CalendarEvents = Record<string, Array<CalendarEvent>> // events by date
+
+type CalendarProps = {
+  eventsByDate: CalendarEvents
+  setFilters?: (range: IRange) => void
 }
 
 function getDayLabels(view: View, currentDate: Date) {
@@ -83,91 +70,17 @@ function getCalendarWeeks(
   return allWeeks
 }
 
-function computeCalendarEvents(
-  standardEvents: Array<StandardEvent>,
-  recurringEvents: Array<RecurringEvent>,
-  rangeStart: Date,
-  rangeEnd: Date,
-) {
-  const workerShiftEventsByDate = standardEvents.reduce<
-    Record<string, CalendarEvent[]>
-  >((acc, ws) => {
-    if (!ws.start_date || !ws.end_date) return acc
-    const start = parseISO(ws.start_date)
-    const end = parseISO(ws.end_date)
-    if (!isValid(start) || !isValid(end)) return acc
-    const key = format(start, "yyyy-MM-dd")
-    const label = "Shift"
-    const timeLabel = `${format(start, "HH:mm")}-${format(end, "HH:mm")}`
-    const event: CalendarEvent = {
-      label,
-      timeLabel,
-      startDateTime: start,
-      endDateTime: end,
-    }
-    acc[key] = acc[key] ? [...acc[key], event] : [event]
-    return acc
-  }, {})
-
-  const eventsByDate: Record<string, CalendarEvent[]> = {
-    ...workerShiftEventsByDate,
-  }
-
-  if (recurringEvents?.length) {
-    // Fill in recurring template events across the displayed calendar range
-    let d = rangeStart
-    while (d <= rangeEnd) {
-      const dow = getDay(d) // 0 (Sun) - 6 (Sat)
-      const key = format(d, "yyyy-MM-dd")
-      for (const tpl of recurringEvents) {
-        if (tpl.weekDays.includes(dow)) {
-          const startDateTime = buildDateWithTime(d, tpl.start_time)
-          let endDateTime = buildDateWithTime(d, tpl.end_time)
-          if (!isAfter(endDateTime, startDateTime)) {
-            endDateTime = addDays(endDateTime, 1)
-          }
-
-          const event: CalendarEvent = {
-            label: tpl.label,
-            timeLabel: `${tpl.start_time}-${tpl.end_time}`,
-            onClick: tpl.onClick,
-            startDateTime,
-            endDateTime,
-          }
-          eventsByDate[key] = eventsByDate[key]
-            ? [...eventsByDate[key], event]
-            : [event]
-        }
-      }
-      d = addDays(d, 1)
-    }
-  }
-
-  return eventsByDate
-}
-
-export default function Calendar({
-  setFilters,
-  standardEvents,
-  recurringEvents,
-}: CalendarProps) {
+export default function Calendar({ setFilters, eventsByDate }: CalendarProps) {
   const [currentDate, setCurrentDate] = useState<Date>(new Date())
   const [view, setView] = useState<View>("month")
 
-  const { weeks, dayLabels, eventsByDate } = useMemo(() => {
+  const { weeks, dayLabels } = useMemo(() => {
     const dayLabels = getDayLabels(view, currentDate)
     const { rangeStart, rangeEnd } = getCalendarRange(view, currentDate)
     const weeks = getCalendarWeeks(view, currentDate, rangeStart, rangeEnd)
-    const eventsByDate = computeCalendarEvents(
-      standardEvents || [],
-      recurringEvents || [],
-      rangeStart,
-      rangeEnd,
-    )
 
-    return { weeks, dayLabels, eventsByDate }
-  }, [currentDate, view, standardEvents, recurringEvents])
-
+    return { weeks, dayLabels }
+  }, [currentDate, view])
   useEffect(() => {
     if (setFilters) {
       setFilters(getCalendarRange(view, currentDate))
@@ -175,7 +88,7 @@ export default function Calendar({
   }, [currentDate, view, setFilters])
 
   return (
-    <Box sx={{ width: "100%", maxWidth: 720, mx: "auto" }}>
+    <Box sx={{ width: "100%", mx: "auto" }}>
       <CalendarControls
         currentDate={currentDate}
         setCurrentDate={setCurrentDate}
@@ -185,7 +98,6 @@ export default function Calendar({
 
       <DayLabels view={view} dayLabels={dayLabels} />
 
-      {/* Grid */}
       <Box
         sx={{
           display: "grid",
@@ -198,6 +110,7 @@ export default function Calendar({
           <Box key={`wk-${wIdx}`} sx={{ display: "contents" }}>
             {week.map((day) => (
               <DayCell
+                key={`wk-${wIdx}-day-${day}`}
                 view={view}
                 day={day}
                 currentDate={currentDate}
@@ -235,13 +148,14 @@ function DayCell({
       // TODO is wIdx needed here
       key={`${wIdx}-${key}`}
       sx={{
-        aspectRatio: view === "day" ? "auto" : "1 / 1",
-        minHeight: view === "day" ? 180 : undefined,
+        aspectRatio: view === "month" ? "1 / 1" : "auto",
+        minHeight: view === "day" ? 300 : view === "week" ? 200 : undefined,
         p: 0.75,
         borderRadius: 1,
         border: "1px solid",
         borderColor: today ? "primary.main" : "divider",
-        bgcolor: today ? "primary.light" : "background.paper",
+        borderWidth: today ? 2 : 1,
+        bgcolor: "background.paper",
         opacity: outside ? 0.45 : 1,
         display: "flex",
         flexDirection: "column",
@@ -249,6 +163,7 @@ function DayCell({
         justifyContent: "flex-start",
         fontSize: 14,
         overflow: "hidden",
+        cursor: "pointer",
       }}
     >
       <Typography variant="body2" sx={{ fontWeight: 600 }}>
@@ -258,34 +173,133 @@ function DayCell({
         sx={{
           mt: 0.5,
           display: "flex",
-          flexDirection: "column",
+          flexDirection: view === "month" ? "column" : "row",
+          flexWrap: "wrap",
           gap: 0.25,
         }}
       >
-        {events.map((ev) => (
-          <Box
-            // key={ev.id}
-            sx={{
-              px: 0.5,
-              py: 0.25,
-              borderRadius: 0.5,
-              borderLeft: "3px solid",
-              //   borderLeftColor:
-              //     ev.kind === "template" ? "info.main" : "success.main",
-              bgcolor: "action.hover",
-              fontSize: 12,
-              lineHeight: 1.2,
-              overflow: "hidden",
-              whiteSpace: "nowrap",
-              textOverflow: "ellipsis",
-            }}
-            title={`${ev.label} ${ev.timeLabel}`}
-            onClick={() => ev.onClick?.(ev)}
-          >
-            {ev.label} {ev.timeLabel}
-          </Box>
+        {events.map((event) => (
+          <Event
+            key={`${event.label}${event.startDateTime}${event.endDateTime}`}
+            event={event}
+          />
         ))}
       </Box>
+    </Box>
+  )
+}
+
+type EventProps = {
+  event: CalendarEvent
+}
+
+function Event({ event }: EventProps) {
+  return (
+    <Box
+      sx={{
+        px: 1,
+        py: 0.5,
+        borderRadius: 1,
+        borderLeft: "3px solid",
+        borderLeftColor: "primary.main",
+        bgcolor: "primary.50",
+        fontSize: 12,
+        lineHeight: 1.2,
+        overflow: "hidden",
+        whiteSpace: "nowrap",
+        textOverflow: "ellipsis",
+        cursor: "pointer",
+        transition: "all 0.2s ease-in-out",
+        "&:hover": {
+          bgcolor: "primary.100",
+          borderLeftColor: "primary.dark",
+          transform: "translateY(-1px)",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+        },
+      }}
+      title={`${event.label} ${event.timeLabel}`}
+      onClick={() => event.onClick?.(event)}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: 0.5,
+        }}
+      >
+        <Typography
+          variant="body2"
+          sx={{ fontWeight: 600, color: "primary.dark" }}
+        >
+          {event.label}
+        </Typography>
+        <Typography
+          variant="caption"
+          sx={{ color: "text.secondary", fontSize: 10 }}
+        >
+          {event.timeLabel}
+        </Typography>
+      </Box>
+      {event.subEvents?.length ? (
+        <Box
+          sx={{
+            mt: 0.75,
+            display: "flex",
+            flexDirection: "row",
+            flexWrap: "wrap",
+            gap: 0.5,
+          }}
+        >
+          {event.subEvents?.map((subEvent) => (
+            <Box
+              key={`${subEvent.label}${subEvent.startDateTime}`}
+              sx={{
+                px: 0.75,
+                py: 0.25,
+                borderRadius: 0.75,
+                bgcolor: "secondary.50",
+                border: "1px solid",
+                borderColor: "secondary.200",
+                fontSize: 10,
+                fontWeight: 500,
+                lineHeight: 1.2,
+                overflow: "hidden",
+                whiteSpace: "nowrap",
+                textOverflow: "ellipsis",
+                flex: "0 0 auto",
+                cursor: "pointer",
+                transition: "all 0.15s ease-in-out",
+                "&:hover": {
+                  bgcolor: "secondary.100",
+                  borderColor: "secondary.300",
+                  transform: "scale(1.02)",
+                },
+              }}
+              title={`${subEvent.label} ${subEvent.timeLabel}`}
+              onClick={(e) => {
+                e.stopPropagation()
+                subEvent.onClick?.(subEvent)
+              }}
+            >
+              <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
+                <Typography
+                  variant="caption"
+                  sx={{ fontWeight: 600, color: "secondary.dark" }}
+                >
+                  {subEvent.label}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{ color: "text.secondary", fontSize: 9 }}
+                >
+                  {subEvent.timeLabel}
+                </Typography>
+              </Box>
+            </Box>
+          ))}
+        </Box>
+      ) : null}
     </Box>
   )
 }

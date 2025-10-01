@@ -16,4 +16,4 @@ export type ShiftTemplateFormValues = Omit<ShiftTemplate, "id" | "company_id">
 
 export type AddShiftTemplatePayload = ShiftTemplateFormValues
 
-export type UpdateShiftTemplatePayload = ShiftTemplate
+export type UpdateShiftTemplatePayload = Omit<ShiftTemplate, "company_id">

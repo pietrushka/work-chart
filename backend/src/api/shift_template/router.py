@@ -53,12 +53,12 @@ def edit_shift_template_route(
     session: Session = Depends(get_session),
     current_user: UserModel = Depends(authenticate_user),
 ):
-    shift_template = find_shift_template_by_id(shift_template_id)
+    shift_template = find_shift_template_by_id(shift_template_id, session)
     authenticate_company_admin(shift_template.company_id, current_user)
 
     if not shift_template:
         raise HTTPException(status_code=404, detail="Shift template not found")
-    edit_shift_template(shift_template_id, payload, session)
+    edit_shift_template(shift_template, payload, session)
     return {"status": "success"}
 
 

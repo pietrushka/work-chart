@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Box, Container, Typography, Button, Alert } from "@mui/material"
 import { Work } from "@mui/icons-material"
 import { useGetShiftTemplatesQuery } from "../redux/api/shiftTemplateApi"
@@ -8,6 +8,7 @@ import { IRange } from "../types/date"
 import { skipToken } from "@reduxjs/toolkit/query"
 import ManualAssignmentDialog from "../components/ManageShifts/ManualAssignmentDialog"
 import AutoAssignShifts from "../components/ManageShifts/AutoAssignShifts"
+import computeManagementEvents from "../utils/computeManagementEvents"
 
 export default function ManageWorkerShift() {
   const [selectedStartDateTime, setSelectedStartDateTime] = useState<string>()
@@ -30,8 +31,36 @@ export default function ManageWorkerShift() {
           }
         : skipToken,
     )
-  const workerShifts = workerShiftsResponse?.items || []
-  const shifts = shiftTemplates?.items || []
+  const workerShifts = workerShiftsResponse?.items
+  const shifts = shiftTemplates?.items
+
+  const eventsByDate = useMemo(() => {
+    if (!filters || !workerShifts || !shifts) {
+      return {}
+    }
+    const { rangeStart, rangeEnd } = filters
+
+    function shiftTemplateClickHandler(event: CalendarEvent) {
+      setSelectedShift(event.sourceId!)
+      setSelectedStartDateTime(event.startDateTime.toISOString())
+      setSelectedEndDateTime(event.endDateTime.toISOString())
+      setShowAssignmentDialog(true)
+    }
+    function workerShiftClickHandler(event: CalendarEvent) {
+      console.log("workerShiftClickHandler", event)
+    }
+
+    const eventsByDate = computeManagementEvents({
+      workerShifts,
+      shiftTemplates: shifts,
+      shiftTemplateClickHandler,
+      workerShiftClickHandler,
+      rangeStart,
+      rangeEnd,
+    })
+
+    return eventsByDate
+  }, [filters, workerShifts, shifts])
 
   if (isLoadingShifts || isLoadingWorkerShifts) {
     return (
@@ -49,26 +78,7 @@ export default function ManageWorkerShift() {
         Manage Worker Shifts
       </Typography>
 
-      <Calendar
-        setFilters={setFilters}
-        standardEvents={workerShifts.map((x) => ({
-          label: shifts.find((y) => y.id === x.template_id)?.name || "unknown",
-          start_date: x.start_date,
-          end_date: x.end_date,
-        }))}
-        recurringEvents={shifts.map((x) => ({
-          label: x.name,
-          start_time: x.startTime,
-          end_time: x.endTime,
-          weekDays: x.days,
-          onClick: (event: CalendarEvent) => {
-            setSelectedShift(x.id)
-            setSelectedStartDateTime(event.startDateTime.toISOString())
-            setSelectedEndDateTime(event.endDateTime.toISOString())
-            setShowAssignmentDialog(true)
-          },
-        }))}
-      />
+      <Calendar eventsByDate={eventsByDate} setFilters={setFilters} />
 
       {successMessage && (
         <Alert severity="success" sx={{ mb: 2 }}>
@@ -97,7 +107,6 @@ export default function ManageWorkerShift() {
         selectedShift={selectedShift}
         setSelectedShift={setSelectedShift}
         setSuccessMessage={setSuccessMessage}
-        shifts={shifts}
       />
     </Container>
   )

@@ -46,7 +46,7 @@ export const shiftTemplateApi = createApi({
     >({
       query: (body) => ({
         url: `/${body.id}`,
-        method: "PUT",
+        method: "PATCH",
         body,
       }),
       invalidatesTags: ["ShiftTemplates"],

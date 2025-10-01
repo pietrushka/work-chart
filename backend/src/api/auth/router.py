@@ -18,6 +18,7 @@ from api.users.user_service import (
     find_user_by_id,
     update_user_password,
 )
+from api.common.email_service import email_service
 from constants import ACCESS_TOKEN_EXPIRE_MINUTES
 from db.models import TokenType, UserRole
 from db.session import get_session
@@ -27,7 +28,7 @@ router = APIRouter(tags=["auth"])
 
 
 @router.post("/register")
-def register(payload: RegisterSchema, session: Session = Depends(get_session)):
+async def register(payload: RegisterSchema, session: Session = Depends(get_session)):
     data = payload.model_dump()
     existing_user = find_user_by_email(data["email"], session)
 
@@ -50,6 +51,12 @@ def register(payload: RegisterSchema, session: Session = Depends(get_session)):
         "company_id": company.id,
     }
     new_user = create_user(user_data, session)
+
+    await email_service.send_email(
+        to_emails=[data["email"]],
+        subject="Welcome to WorkChart",
+        body_text="Welcome to WorkChart",
+    )
 
     access_token = create_access_token(
         data={"user_id": str(new_user.id)},
@@ -121,7 +128,7 @@ def me(request: Request, session: Session = Depends(get_session)):
 
 
 @router.post("/activate-account")
-def activate_account(
+async def activate_account(
     payload: ActivateAccountSchema, session: Session = Depends(get_session)
 ):
     data = payload.model_dump()
@@ -141,6 +148,12 @@ def activate_account(
     update_user_password(user.id, data["password"], session)
 
     delete_token(token.id, session)
+
+    await email_service.send_email(
+        to_emails=[user["email"]],
+        subject="Your account has been activated",
+        body_text="Your account has been activated",
+    )
 
     return {"status": "success"}
 

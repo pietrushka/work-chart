@@ -149,7 +149,7 @@ export default function ShiftTemplateForm({
         sx={{ mt: 2 }}
         disabled={!form.name}
       >
-        Add Template
+        Submit
       </Button>
     </Box>
   )

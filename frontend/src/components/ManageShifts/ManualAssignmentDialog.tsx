@@ -14,8 +14,8 @@ import {
 } from "@mui/material"
 import { useGetEmployeesQuery } from "../../redux/api/employeeApi"
 import { useAddWorkerShiftMutation } from "../../redux/api/workerShiftApi"
-import { ShiftTemplate } from "../../types/shiftTemplate"
 import { removeTimeSeconds } from "../../utils/dateHelpers"
+import { useGetShiftTemplatesQuery } from "../../redux/api/shiftTemplateApi"
 
 type ManualAssignmentDialogProps = {
   showAssignmentDialog: boolean
@@ -25,7 +25,6 @@ type ManualAssignmentDialogProps = {
   selectedShift: string | undefined
   setSelectedShift: Dispatch<SetStateAction<string>>
   setSuccessMessage: Dispatch<SetStateAction<string>>
-  shifts: Array<ShiftTemplate>
 }
 
 export default function ManualAssignmentDialog({
@@ -36,7 +35,6 @@ export default function ManualAssignmentDialog({
   selectedShift,
   setSelectedShift,
   setSuccessMessage,
-  shifts,
 }: ManualAssignmentDialogProps) {
   const [selectedEmployee, setSelectedEmployee] = useState<string>("")
 
@@ -44,6 +42,9 @@ export default function ManualAssignmentDialog({
 
   const { data: employees } = useGetEmployeesQuery()
   const workers = employees?.items || []
+
+  const { data: shiftTemplates } = useGetShiftTemplatesQuery()
+  const shifts = shiftTemplates?.items || []
 
   async function handleAssignEmployee() {
     if (!selectedShift || !selectedEmployee) {
