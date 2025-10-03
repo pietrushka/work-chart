@@ -11,8 +11,7 @@ def create_leave(
     leave_data = data.model_dump()
     leave_data["user_id"] = user_id
     leave_data["company_id"] = company_id
-    leave_data["start_date"] = datetime.fromisoformat(data.start_date)
-    leave_data["end_date"] = datetime.fromisoformat(data.end_date)
+    new_leave = LeaveModel.model_validate(leave_data)
 
     new_leave = LeaveModel.model_validate(leave_data)
     session.add(new_leave)

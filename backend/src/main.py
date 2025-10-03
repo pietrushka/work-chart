@@ -8,6 +8,7 @@ from api.auth import router as auth_router
 from api.users import router as user_router
 from api.shift_template import router as shift_template_router
 from api.worker_shifts import router as worker_shift_router
+from api.leave import router as leave_router
 
 
 @asynccontextmanager
@@ -35,6 +36,7 @@ app.include_router(auth_router, prefix="/auth")
 app.include_router(user_router, prefix="/users")
 app.include_router(shift_template_router, prefix="/shift-templates")
 app.include_router(worker_shift_router, prefix="/worker-shifts")
+app.include_router(leave_router, prefix="/leaves")
 
 
 @app.get("/health")

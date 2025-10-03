@@ -9,14 +9,14 @@ import { MessageResponse } from "../../types/common"
 export const leaveApi = createApi({
   reducerPath: "leaveApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: `${import.meta.env.VITE_API_URL}/leave`,
+    baseUrl: `${import.meta.env.VITE_API_URL}/leaves`,
     credentials: "include",
   }),
   tagTypes: ["Leaves"],
   endpoints: (builder) => ({
     getMyLeaves: builder.query<GetLeavesResponse, void>({
       query: () => ({
-        url: "/leaves",
+        url: "/my-leaves",
         method: "GET",
       }),
       providesTags: ["Leaves"],

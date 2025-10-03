@@ -4,7 +4,7 @@ from sqlmodel import Session
 from db.session import get_session
 
 from api.dependencies import authenticate_user
-from db.models import UserModel, UserRole
+from db.models import UserModel
 from .schemas import CreateLeaveSchema, EditLeaveSchema
 from . import leave_service
 
@@ -33,7 +33,7 @@ def create(
     }
 
 
-@router.get("/leaves")
+@router.get("/my-leaves")
 def get_my_leaves(
     session: Session = Depends(get_session),
     current_user: UserModel = Depends(authenticate_user),
