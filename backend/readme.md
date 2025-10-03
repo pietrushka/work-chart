@@ -1,3 +1,6 @@
+To run:
+docker compose -f docker-compose.local.yml
+
 To fix the Pylance import error in VS Code, you need to tell VS Code to use this virtual environment. In VS Code:
 
 1. Open the Command Palette (Ctrl+Shift+P)
