@@ -32,10 +32,7 @@ def update_leave(leave_id: UUID, data: EditLeaveSchema, session: Session):
         return None
 
     update_data = data.model_dump(exclude_unset=True)
-    if "start_date" in update_data and update_data["start_date"]:
-        update_data["start_date"] = datetime.fromisoformat(update_data["start_date"])
-    if "end_date" in update_data and update_data["end_date"]:
-        update_data["end_date"] = datetime.fromisoformat(update_data["end_date"])
+    print("update_data", update_data)
 
     for key, value in update_data.items():
         setattr(leave, key, value)
