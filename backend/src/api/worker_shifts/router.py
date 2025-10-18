@@ -3,13 +3,24 @@ from fastapi import APIRouter, Depends, HTTPException
 from api.shift_template.shift_template_service import (
     find_shift_template_by_id,
 )
-from api.worker_shifts.schemas import AddWorkerShiftPayloadSchema, Range, MyShiftsResponse
+from api.worker_shifts.schemas import (
+    AddWorkerShiftPayloadSchema,
+    AutoAssignPayloadSchema,
+    Range,
+    MyShiftsResponse,
+)
 from api.worker_shifts.worker_shift_service import (
+    auto_assign,
     create_shift_template,
     get_user_shifts,
     get_worker_shifts_by_company_id,
     get_worker_shifts_in_time_range,
 )
+
+from api.shift_template.shift_template_service import (
+    find_shift_templates_by_company_id,
+)
+
 from db.models import UserRole
 from db.session import get_session
 from api.dependencies import authenticate_user
@@ -49,7 +60,7 @@ def create_worker_shift(
 
 @router.get("/company")
 def get_worker_shifts(
-     range_start: str,
+    range_start: str,
     range_end: str,
     session=Depends(get_session),
     current_user=Depends(authenticate_user),
@@ -58,7 +69,9 @@ def get_worker_shifts(
         raise HTTPException(status_code=403, detail="User must be ADMIN.")
 
     payload = Range(range_start=range_start, range_end=range_end)
-    worker_shifts = get_worker_shifts_by_company_id(current_user.company_id, payload, session)
+    worker_shifts = get_worker_shifts_by_company_id(
+        current_user.company_id, payload, session
+    )
 
     return {"items": worker_shifts}
 
@@ -72,14 +85,46 @@ def get_my_shifts(
 ):
     payload = Range(range_start=range_start, range_end=range_end)
     shifts = get_user_shifts(current_user.id, payload, session)
-    
-    response_items = [MyShiftsResponse(
-        id=str(shift.id),
-        worker_id=str(shift.worker_id),
-        company_id=str(shift.company_id),
-        start_date=shift.start_date,
-        end_date=shift.end_date,
-        template=shift.template
-    ) for shift in shifts]
+
+    response_items = [
+        MyShiftsResponse(
+            id=str(shift.id),
+            worker_id=str(shift.worker_id),
+            company_id=str(shift.company_id),
+            start_date=shift.start_date,
+            end_date=shift.end_date,
+            template=shift.template,
+        )
+        for shift in shifts
+    ]
 
     return {"items": response_items}
+
+
+@router.post("/auto-assign")
+def auto_assign_controller(
+    payload: AutoAssignPayloadSchema,
+    session=Depends(get_session),
+    current_user=Depends(authenticate_user),
+):
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="User must be ADMIN.")
+
+    data = payload.model_dump()
+
+    if data["overwrite_shifts"]:
+        worker_shifts = []
+    else:
+        worker_shifts = get_worker_shifts_in_time_range(
+            data["range_start"], data["range_end"], session
+        )
+
+    shift_template = find_shift_templates_by_company_id(
+        current_user.company_id, session
+    )
+
+    range = Range(range_start=data["range_start"], range_end=data["range_end"])
+
+    auto_assign(range, worker_shifts, shift_template, session)
+
+    return {"status": "success"}
