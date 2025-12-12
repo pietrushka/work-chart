@@ -3,6 +3,7 @@ import Calendar from "../components/Calendar"
 import { useGetMyShiftsQuery } from "../redux/api/workerShiftApi"
 import { skipToken } from "@reduxjs/toolkit/query"
 import { IRange } from "../types/date"
+import computeShiftEvents from "../utils/computeShiftEvents"
 
 export default function MyShifts() {
   const [filters, setFilters] = useState<IRange>()
@@ -15,15 +16,9 @@ export default function MyShifts() {
       : skipToken,
   )
 
-  const shifts = data?.items || []
-  return (
-    <Calendar
-      standardEvents={shifts.map((x) => ({
-        label: x.template.name || "unknown",
-        start_date: x.start_date,
-        end_date: x.end_date,
-      }))}
-      setFilters={setFilters}
-    />
-  )
+  const workerShifts = data?.items || []
+
+  const eventsByDate = computeShiftEvents(workerShifts)
+
+  return <Calendar eventsByDate={eventsByDate} setFilters={setFilters} />
 }
