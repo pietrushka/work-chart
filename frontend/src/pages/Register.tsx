@@ -34,9 +34,10 @@ export default function Register() {
         setError("Passwords do not match")
         return
       }
-      // Add your registration logic here
+
       console.log("Registration attempt with:", formData)
-    } catch (err) {
+    } catch (error) {
+      console.error(error)
       setError("Registration failed. Please try again.")
     }
   }

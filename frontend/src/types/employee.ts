@@ -7,7 +7,7 @@ export type Employee = {
   position?: string
 }
 
-export type EmployeeFormValues = Omit<Employee, "id">
+export type EmployeeFormValues = Omit<Employee, "id" | "role">
 
 export type AddEmployeePayload = EmployeeFormValues
 
