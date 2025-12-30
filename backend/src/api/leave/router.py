@@ -22,6 +22,15 @@ def create(
             status_code=400, detail="User is not associated with a company"
         )
 
+    can_create_leave = leave_service.validate_can_create_leave(
+        data=payload,
+        user_id=current_user.id,
+        session=session,
+    )
+
+    if not can_create_leave:
+        raise HTTPException(status=400, detail="")
+
     leave_service.create_leave(
         data=payload,
         user_id=current_user.id,

@@ -1,29 +1,23 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
+import { baseApi } from "./baseApi";
 import {
   CreateLeavePayload,
   EditLeavePayload,
   GetLeavesResponse,
-} from "../../types/leave"
-import { MessageResponse } from "../../types/common"
+} from "../../types/leave";
+import { MessageResponse } from "../../types/common";
 
-export const leaveApi = createApi({
-  reducerPath: "leaveApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: `${import.meta.env.VITE_API_URL}/leaves`,
-    credentials: "include",
-  }),
-  tagTypes: ["Leaves"],
+export const leaveApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getMyLeaves: builder.query<GetLeavesResponse, void>({
       query: () => ({
-        url: "/my-leaves",
+        url: "/leaves/my-leaves",
         method: "GET",
       }),
       providesTags: ["Leaves"],
     }),
     createLeave: builder.mutation<MessageResponse, CreateLeavePayload>({
       query: (body) => ({
-        url: "/create",
+        url: "/leaves/create",
         method: "POST",
         body,
       }),
@@ -31,7 +25,7 @@ export const leaveApi = createApi({
     }),
     editLeave: builder.mutation<MessageResponse, EditLeavePayload>({
       query: (body) => ({
-        url: `/${body.id}`,
+        url: `/leaves/${body.id}`,
         method: "PATCH",
         body,
       }),
@@ -39,17 +33,17 @@ export const leaveApi = createApi({
     }),
     deleteLeave: builder.mutation<MessageResponse, string>({
       query: (id) => ({
-        url: `/${id}`,
+        url: `/leaves/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Leaves"],
     }),
   }),
-})
+});
 
 export const {
   useGetMyLeavesQuery,
   useCreateLeaveMutation,
   useEditLeaveMutation,
   useDeleteLeaveMutation,
-} = leaveApi
+} = leaveApi;

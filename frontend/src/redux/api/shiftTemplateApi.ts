@@ -1,22 +1,16 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
-import { MessageResponse } from "../../types/common"
+import { baseApi } from "./baseApi";
+import { MessageResponse } from "../../types/common";
 import {
   AddShiftTemplatePayload,
   GetShiftTemplatesResponse,
   UpdateShiftTemplatePayload,
-} from "../../types/shiftTemplate"
+} from "../../types/shiftTemplate";
 
-export const shiftTemplateApi = createApi({
-  reducerPath: "shiftTemplatesApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: `${import.meta.env.VITE_API_URL}/shift-templates`,
-    credentials: "include",
-  }),
-  tagTypes: ["ShiftTemplates"],
+export const shiftTemplateApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getShiftTemplates: builder.query<GetShiftTemplatesResponse, void>({
       query: (body) => ({
-        url: "/company",
+        url: "/shift-templates/company",
         method: "GET",
         body,
       }),
@@ -27,7 +21,7 @@ export const shiftTemplateApi = createApi({
       AddShiftTemplatePayload
     >({
       query: (body) => ({
-        url: "/create",
+        url: "/shift-templates/create",
         method: "POST",
         body,
       }),
@@ -35,7 +29,7 @@ export const shiftTemplateApi = createApi({
     }),
     deleteShiftTemplate: builder.mutation<MessageResponse, string>({
       query: (id) => ({
-        url: `/${id}`,
+        url: `/shift-templates/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["ShiftTemplates"],
@@ -45,18 +39,18 @@ export const shiftTemplateApi = createApi({
       UpdateShiftTemplatePayload
     >({
       query: (body) => ({
-        url: `/${body.id}`,
+        url: `/shift-templates/${body.id}`,
         method: "PATCH",
         body,
       }),
       invalidatesTags: ["ShiftTemplates"],
     }),
   }),
-})
+});
 
 export const {
   useGetShiftTemplatesQuery,
   useAddShiftTemplateMutation,
   useDeleteShiftTemplateMutation,
   useUpdateShiftTemplateMutation,
-} = shiftTemplateApi
+} = shiftTemplateApi;

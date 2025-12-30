@@ -1,47 +1,41 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
+import { baseApi } from "./baseApi";
 import {
   RegisterPayload,
   LoginPayload,
   ActivateAccountPayload,
-} from "../../types/auth"
-import { MessageResponse } from "../../types/common"
+} from "../../types/auth";
+import { MessageResponse } from "../../types/common";
 
 type CurrentUserResponse = {
-  email: string
-  first_name: string
-  last_name: string
-  role: string
+  email: string;
+  first_name: string;
+  last_name: string;
+  role: string;
   company: {
-    id: string
-    name: string
-  }
-}
+    id: string;
+    name: string;
+  };
+};
 
-export const authApi = createApi({
-  reducerPath: "authApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: `${import.meta.env.VITE_API_URL}/auth`,
-    credentials: "include",
-  }),
-  tagTypes: ["CurrentUser"],
+export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getCurrentUser: builder.query<CurrentUserResponse, void>({
       query: () => ({
-        url: "/me",
+        url: "/auth/me",
         method: "GET",
       }),
       providesTags: ["CurrentUser"],
     }),
     register: builder.mutation<MessageResponse, RegisterPayload>({
       query: (body) => ({
-        url: "/register",
+        url: "/auth/register",
         method: "POST",
         body,
       }),
     }),
     login: builder.mutation<MessageResponse, LoginPayload>({
       query: (body) => ({
-        url: "/login",
+        url: "/auth/login",
         method: "POST",
         body,
       }),
@@ -49,20 +43,24 @@ export const authApi = createApi({
     }),
     activateAccount: builder.mutation<MessageResponse, ActivateAccountPayload>({
       query: (body) => ({
-        url: "/activate-account",
+        url: "/auth/activate-account",
         method: "POST",
         body,
       }),
     }),
     logout: builder.mutation<MessageResponse, void>({
       query: () => ({
-        url: "/logout",
+        url: "/auth/logout",
         method: "POST",
       }),
-      invalidatesTags: ["CurrentUser"],
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        await queryFulfilled;
+        console.log("Logout successful, resetting auth state");
+        dispatch(baseApi.util.resetApiState());
+      },
     }),
   }),
-})
+});
 
 export const {
   useGetCurrentUserQuery,
@@ -70,4 +68,4 @@ export const {
   useLoginMutation,
   useActivateAccountMutation,
   useLogoutMutation,
-} = authApi
+} = authApi;

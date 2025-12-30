@@ -1,3 +1,7 @@
+from backend.src.api.users.user_service import (
+    find_users_for_shift_templates,
+    find_workers_by_company_id,
+)
 from fastapi import APIRouter, Depends, HTTPException
 
 from api.shift_template.shift_template_service import (
@@ -10,7 +14,7 @@ from api.worker_shifts.schemas import (
     MyShiftsResponse,
 )
 from api.worker_shifts.worker_shift_service import (
-    auto_assign,
+    prepare_auto_assign_shifts,
     create_shift_template,
     get_user_shifts,
     get_worker_shifts_by_company_id,
@@ -119,12 +123,15 @@ def auto_assign_controller(
             data["range_start"], data["range_end"], session
         )
 
-    shift_template = find_shift_templates_by_company_id(
+    shift_templates = find_shift_templates_by_company_id(
         current_user.company_id, session
     )
 
     range = Range(range_start=data["range_start"], range_end=data["range_end"])
 
-    auto_assign(range, worker_shifts, shift_template, session)
+    users = find_workers_by_company_id(current_user.company_id, session)
+    users_ids = [user.id for user in users]
+
+    prepare_auto_assign_shifts(range, worker_shifts, shift_templates, users_ids)
 
     return {"status": "success"}

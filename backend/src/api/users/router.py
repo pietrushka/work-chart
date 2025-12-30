@@ -46,7 +46,7 @@ async def create_worker(
 
     frontend_url = config("FRONTEND_URL")
     await email_service.send_email(
-        to_emails=[new_worker["email"]],
+        to_emails=[new_worker.email],
         subject="You have been added as a worker",
         body_text=f"Activation link: {frontend_url}/activate-account/{activate_token}",
     )
@@ -62,12 +62,12 @@ def get_workers(
     if current_user.role != UserRole.ADMIN or not current_user.company_id:
         raise HTTPException(status_code=401, detail="Not authorized")
 
-    workers = user_service.find_users_by_company_id(current_user.company_id, session)
+    workers = user_service.find_workers_by_company_id(current_user.company_id, session)
     return {"items": workers}
 
 
 @router.patch("/worker/{user_id}")
-def edit_worker_route(
+def edit_worker(
     user_id: str,
     payload: EditWorkerPayloadSchema,
     session: Session = Depends(get_session),
@@ -85,7 +85,7 @@ def edit_worker_route(
 
 
 @router.delete("/worker/{user_id}")
-def delete_shift_template(
+def delete_worker(
     user_id: str,
     session: Session = Depends(get_session),
     current_user: UserModel = Depends(authenticate_user),

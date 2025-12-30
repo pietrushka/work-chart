@@ -15,8 +15,13 @@ docker-compose -f docker-compose.local.yml down && docker-compose -f │
 │ docker-compose.local.yml up --build
 
 ```
-pip install -r requirements.txt
-source venv/bin/activate
+
+```
+
+```
+python3 -m venv env
+source env/bin/activate
+pip3 install -r requirements.txt
 docker-compose up -d postgres && uvicorn main:app --host 0.0.0.0 --port 8002 --reload
 ```
 
@@ -37,4 +42,15 @@ docker compose up
 
 ```
 docker-compose up -d client
+```
+
+TESTS
+
+```
+pytest src/api/worker_shifts/__tests__/test_worker_shift_service_pytest.py
+```
+
+```
+pytest src/api/worker_shifts/__tests__/test_worker_shift_service_pytest.py -k test_not_enough_users -v --capture=tee-sys
+
 ```

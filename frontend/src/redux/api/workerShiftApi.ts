@@ -1,23 +1,17 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
-import { MessageResponse } from "../../types/common"
+import { baseApi } from "./baseApi";
+import { MessageResponse } from "../../types/common";
 import {
   GetWorkersShiftsResponse,
   AddWorkerShiftPayload,
   GetMyShiftsResponse,
   RangePayload,
-} from "../../types/workerShift"
+} from "../../types/workerShift";
 
-export const workerShiftApi = createApi({
-  reducerPath: "workerShiftApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: `${import.meta.env.VITE_API_URL}/worker-shifts`,
-    credentials: "include",
-  }),
-  tagTypes: ["AdminWorkersShifts", "MyShifts"],
+export const workerShiftApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getWorkersShifts: builder.query<GetWorkersShiftsResponse, RangePayload>({
       query: (params) => ({
-        url: "/company",
+        url: "/worker-shifts/company",
         method: "GET",
         params,
       }),
@@ -25,7 +19,7 @@ export const workerShiftApi = createApi({
     }),
     addWorkerShift: builder.mutation<MessageResponse, AddWorkerShiftPayload>({
       query: (body) => ({
-        url: "/create-worker-shift",
+        url: "/worker-shifts/create-worker-shift",
         method: "POST",
         body,
       }),
@@ -33,7 +27,7 @@ export const workerShiftApi = createApi({
     }),
     getMyShifts: builder.query<GetMyShiftsResponse, RangePayload>({
       query: (params) => ({
-        url: "/my-shifts",
+        url: "/worker-shifts/my-shifts",
         method: "GET",
         params,
       }),
@@ -42,24 +36,24 @@ export const workerShiftApi = createApi({
 
     // deleteWorkerShift: builder.mutation<MessageResponse, string>({
     //   query: (id) => ({
-    //     url: `/worker/${id}`,
+    //     url: `/worker-shifts/worker/${id}`,
     //     method: "DELETE",
     //   }),
     //   invalidatesTags: ["AdminWorkersShifts"],
     // }),
     // updateWorkerShift: builder.mutation<MessageResponse, void>({
     //   query: (body) => ({
-    //     url: `/${body.id}`,
+    //     url: `/worker-shifts/${body.id}`,
     //     method: "PATCH",
     //     body,
     //   }),
     //   invalidatesTags: ["AdminWorkersShifts"],
     // }),
   }),
-})
+});
 
 export const {
   useGetWorkersShiftsQuery,
   useAddWorkerShiftMutation,
   useGetMyShiftsQuery,
-} = workerShiftApi
+} = workerShiftApi;

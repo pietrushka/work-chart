@@ -5,8 +5,9 @@ sqlmodel
 pydantic
 sqlalchemy
 python-decouple
-psycopg2
+psycopg2-binary
 PyJWT
 passlib
 boto3
 botocore
+requests

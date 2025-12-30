@@ -53,7 +53,7 @@ class WorkerShiftModel(SQLModel, table=True):
     __tablename__ = "worker_shifts"
 
     id: UUID = Field(default_factory=uuid4, primary_key=True)
-    worker_id: UUID = Field(foreign_key="users.id")
+    worker_id: UUID = Field(foreign_key="users.id", ondelete="CASCADE")
     company_id: UUID = Field(foreign_key="companies.id")
     start_date: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),
@@ -86,7 +86,7 @@ class TokenModel(SQLModel, table=True):
     __tablename__ = "tokens"
 
     id: UUID = Field(default_factory=uuid4, primary_key=True)
-    user_id: UUID = Field(foreign_key="users.id")
+    user_id: UUID = Field(foreign_key="users.id", ondelete="CASCADE")
     type: TokenType
     expired_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),
@@ -97,7 +97,7 @@ class TokenModel(SQLModel, table=True):
 class LeaveModel(SQLModel, table=True):
     __tablename__ = "leaves"
     id: UUID = Field(default_factory=uuid4, primary_key=True)
-    user_id: UUID = Field(foreign_key="users.id")
+    user_id: UUID = Field(foreign_key="users.id", ondelete="CASCADE")
     company_id: UUID = Field(foreign_key="companies.id")
     start_date: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),

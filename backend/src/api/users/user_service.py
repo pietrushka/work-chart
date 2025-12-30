@@ -3,7 +3,7 @@ from uuid import UUID
 
 from api.auth.auth_service import get_password_hash
 from api.users.schemas import CreateUserSchema, EditWorkerPayloadSchema
-from db.models import UserModel
+from db.models import UserModel, UserRole
 from sqlalchemy.orm import selectinload
 
 
@@ -33,8 +33,12 @@ def find_user_by_id(user_id: UUID, session: Session, populate: bool = False):
     return session.exec(query).first()
 
 
-def find_users_by_company_id(company_id: UUID, session: Session):
-    quer = select(UserModel).where(UserModel.company_id == company_id)
+def find_workers_by_company_id(company_id: UUID, session: Session):
+    quer = (
+        select(UserModel)
+        .where(UserModel.company_id == company_id)
+        .where(UserModel.role != UserRole.ADMIN)
+    )
     return session.exec(quer).all()
 
 
@@ -50,3 +54,8 @@ def edit_user(user: UserModel, payload: EditWorkerPayloadSchema, session: Sessio
 def delete_user(user: UserModel, session: Session):
     session.delete(user)
     session.commit()
+
+
+def find_users_for_shift_templates(shift_templates: list[UUID], session: Session):
+    query = select(UserModel).where(UserModel.id.in_(shift_templates))
+    return session.exec(query).all()
