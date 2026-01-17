@@ -32,6 +32,11 @@ function produceWorkerShiftCalendarEvent(
   return event
 }
 
+// Convert JS getDay (0=Sun, 6=Sat) to app format (1=Mon, 7=Sun)
+function jsDayToAppDay(jsDay: number): number {
+  return jsDay === 0 ? 7 : jsDay
+}
+
 export default function computeManagementEvents({
   shiftTemplates,
   workerShifts,
@@ -47,7 +52,7 @@ export default function computeManagementEvents({
     // Fill in recurring template events across the displayed calendar range
     let d = rangeStart
     while (d <= rangeEnd) {
-      const dow = getDay(d) // 0 (Sun) - 6 (Sat)
+      const dow = jsDayToAppDay(getDay(d)) // 1 (Mon) - 7 (Sun)
       const key = format(d, "yyyy-MM-dd")
       for (const template of shiftTemplates) {
         if (template.days.includes(dow)) {
