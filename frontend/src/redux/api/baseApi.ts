@@ -15,6 +15,7 @@ export const baseApi = createApi({
     "ShiftTemplates",
     "AdminWorkersShifts",
     "MyShifts",
+    "AssignmentSuggestions",
   ],
   endpoints: () => ({}),
 });

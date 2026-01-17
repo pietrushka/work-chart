@@ -107,3 +107,24 @@ class LeaveModel(SQLModel, table=True):
         default_factory=lambda: datetime.now(timezone.utc),
         sa_column=Column(DateTime(timezone=True)),
     )
+
+
+class AssignmentSuggestionModel(SQLModel, table=True):
+    __tablename__ = "assignment_suggestions"
+
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    worker_id: UUID = Field(foreign_key="users.id", ondelete="CASCADE")
+    company_id: UUID = Field(foreign_key="companies.id", ondelete="CASCADE")
+    template_id: UUID = Field(foreign_key="shift_templates.id", ondelete="CASCADE")
+    start_date: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        sa_column=Column(DateTime(timezone=True)),
+    )
+    end_date: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        sa_column=Column(DateTime(timezone=True)),
+    )
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        sa_column=Column(DateTime(timezone=True)),
+    )

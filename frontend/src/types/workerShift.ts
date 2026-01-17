@@ -27,3 +27,23 @@ export type RangePayload = {
 export type GetMyShiftsResponse = {
   items: (WorkerShift & { template: ShiftTemplate })[]
 }
+
+export type AssignmentSuggestion = {
+  id: string
+  worker_id: string
+  company_id: string
+  template_id: string
+  start_date: string
+  end_date: string
+  created_at: string
+}
+
+export type GetAssignmentSuggestionsResponse = {
+  items: AssignmentSuggestion[]
+}
+
+export type AutoAssignPayload = {
+  range_start: string
+  range_end: string
+  overwrite_shifts: boolean
+}

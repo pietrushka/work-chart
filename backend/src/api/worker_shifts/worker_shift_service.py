@@ -1,9 +1,22 @@
 from uuid import UUID
+from typing import TypedDict
 from sqlmodel import Session, select
 from sqlalchemy.orm import selectinload
 from datetime import datetime, timedelta
 from .schemas import AddWorkerShiftPayloadSchema, Range
-from db.models import ShiftTemplateModel, UserModel, WorkerShiftModel
+from db.models import (
+    AssignmentSuggestionModel,
+    ShiftTemplateModel,
+    UserModel,
+    WorkerShiftModel,
+)
+
+
+class ShiftPlaceholder(TypedDict):
+    worker_id: UUID
+    template_id: UUID
+    start_date: datetime
+    end_date: datetime
 
 
 def create_shift_template(
@@ -107,7 +120,7 @@ def prepare_auto_assign_shifts(
     worker_shifts: list[WorkerShiftModel],
     shift_templates: list[ShiftTemplateModel],
     users: list[UserModel],
-):
+) -> list[ShiftPlaceholder]:
     if not users:
         raise ValueError("Cannot auto-assign shifts: no users provided")
 
@@ -171,3 +184,77 @@ def prepare_auto_assign_shifts(
         current_date += timedelta(days=1)
 
     return shift_placeholders
+
+
+def save_assignment_suggestions(
+    shift_placeholders: list[ShiftPlaceholder],
+    company_id: UUID,
+    session: Session,
+) -> list[AssignmentSuggestionModel]:
+    suggestions = []
+    for placeholder in shift_placeholders:
+        suggestion = AssignmentSuggestionModel(
+            worker_id=placeholder["worker_id"],
+            company_id=company_id,
+            template_id=placeholder["template_id"],
+            start_date=placeholder["start_date"],
+            end_date=placeholder["end_date"],
+        )
+        session.add(suggestion)
+        suggestions.append(suggestion)
+    session.commit()
+    for suggestion in suggestions:
+        session.refresh(suggestion)
+    return suggestions
+
+
+def get_assignment_suggestions_by_company(
+    company_id: UUID, session: Session
+) -> list[AssignmentSuggestionModel]:
+    query = select(AssignmentSuggestionModel).where(
+        AssignmentSuggestionModel.company_id == company_id
+    )
+    return list(session.exec(query).all())
+
+
+def delete_assignment_suggestion(suggestion_id: UUID, session: Session) -> bool:
+    suggestion = session.get(AssignmentSuggestionModel, suggestion_id)
+    if not suggestion:
+        return False
+    session.delete(suggestion)
+    session.commit()
+    return True
+
+
+def delete_all_company_suggestions(company_id: UUID, session: Session) -> int:
+    query = select(AssignmentSuggestionModel).where(
+        AssignmentSuggestionModel.company_id == company_id
+    )
+    suggestions = session.exec(query).all()
+    count = len(suggestions)
+    for suggestion in suggestions:
+        session.delete(suggestion)
+    session.commit()
+    return count
+
+
+def accept_assignment_suggestions(
+    company_id: UUID, session: Session
+) -> list[WorkerShiftModel]:
+    suggestions = get_assignment_suggestions_by_company(company_id, session)
+    worker_shifts = []
+    for suggestion in suggestions:
+        worker_shift = WorkerShiftModel(
+            worker_id=suggestion.worker_id,
+            company_id=suggestion.company_id,
+            template_id=suggestion.template_id,
+            start_date=suggestion.start_date,
+            end_date=suggestion.end_date,
+        )
+        session.add(worker_shift)
+        worker_shifts.append(worker_shift)
+        session.delete(suggestion)
+    session.commit()
+    for ws in worker_shifts:
+        session.refresh(ws)
+    return worker_shifts

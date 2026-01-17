@@ -7,7 +7,7 @@ from db.session import init_db
 from api.auth import router as auth_router
 from api.users import router as user_router
 from api.shift_template import router as shift_template_router
-from api.worker_shifts import router as worker_shift_router
+from api.worker_shifts.router import router as worker_shift_router
 from api.leave import router as leave_router
 
 

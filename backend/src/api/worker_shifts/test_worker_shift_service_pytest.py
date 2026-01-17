@@ -2,12 +2,11 @@ from datetime import datetime, timezone
 from uuid import UUID, uuid4
 from dataclasses import dataclass
 from typing import Optional
-import json
 import pytest
 
 
-from ..schemas import Range
-from ..worker_shift_service import (
+from api.worker_shifts.schemas import Range
+from api.worker_shifts.worker_shift_service import (
     prepare_auto_assign_shifts,
 )
 

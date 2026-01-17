@@ -31,3 +31,13 @@ class AutoAssignPayloadSchema(BaseModel):
     range_start: str
     range_end: str
     overwrite_shifts: bool
+
+
+class AssignmentSuggestionResponse(SQLModel):
+    id: str
+    worker_id: str
+    company_id: str
+    template_id: str
+    start_date: datetime
+    end_date: datetime
+    created_at: datetime
