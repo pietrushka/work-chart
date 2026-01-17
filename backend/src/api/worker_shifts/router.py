@@ -17,6 +17,7 @@ from api.worker_shifts.schemas import (
 from api.worker_shifts.worker_shift_service import (
     accept_assignment_suggestions,
     delete_all_company_suggestions,
+    delete_worker_shifts_in_range,
     get_assignment_suggestions_by_company,
     prepare_auto_assign_shifts,
     create_shift_template,
@@ -211,5 +212,21 @@ def decline_suggestions(
         raise HTTPException(status_code=403, detail="User must be ADMIN.")
 
     count = delete_all_company_suggestions(current_user.company_id, session)
+
+    return {"status": "success", "count": count}
+
+
+@router.delete("/clear")
+def clear_worker_shifts(
+    range_start: str,
+    range_end: str,
+    session=Depends(get_session),
+    current_user=Depends(authenticate_user),
+):
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="User must be ADMIN.")
+
+    payload = Range(range_start=range_start, range_end=range_end)
+    count = delete_worker_shifts_in_range(current_user.company_id, payload, session)
 
     return {"status": "success", "count": count}

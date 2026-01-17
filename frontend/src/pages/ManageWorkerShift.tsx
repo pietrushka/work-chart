@@ -8,6 +8,7 @@ import { IRange } from "../types/date"
 import { skipToken } from "@reduxjs/toolkit/query"
 import ManualAssignmentDialog from "../components/ManageShifts/ManualAssignmentDialog"
 import AutoAssignShifts from "../components/ManageShifts/AutoAssignShifts"
+import ClearShifts from "../components/ManageShifts/ClearShifts"
 import computeManagementEvents from "../utils/computeManagementEvents"
 
 export default function ManageWorkerShift() {
@@ -96,7 +97,10 @@ export default function ManageWorkerShift() {
           Assign Employee to Shift
         </Button>
 
-        <AutoAssignShifts />
+        <Box display="flex" gap={2}>
+          <ClearShifts />
+          <AutoAssignShifts />
+        </Box>
       </Box>
 
       <ManualAssignmentDialog

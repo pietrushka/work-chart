@@ -258,3 +258,21 @@ def accept_assignment_suggestions(
     for ws in worker_shifts:
         session.refresh(ws)
     return worker_shifts
+
+
+def delete_worker_shifts_in_range(
+    company_id: UUID, range: Range, session: Session
+) -> int:
+    data = range.model_dump()
+    query = (
+        select(WorkerShiftModel)
+        .where(WorkerShiftModel.company_id == company_id)
+        .where(WorkerShiftModel.start_date >= data["range_start"])
+        .where(WorkerShiftModel.end_date <= data["range_end"])
+    )
+    shifts = session.exec(query).all()
+    count = len(shifts)
+    for shift in shifts:
+        session.delete(shift)
+    session.commit()
+    return count

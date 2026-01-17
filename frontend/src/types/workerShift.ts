@@ -47,3 +47,8 @@ export type AutoAssignPayload = {
   range_end: string
   overwrite_shifts: boolean
 }
+
+export type ClearShiftsResponse = {
+  status: string
+  count: number
+}

@@ -7,6 +7,7 @@ import {
   RangePayload,
   AutoAssignPayload,
   GetAssignmentSuggestionsResponse,
+  ClearShiftsResponse,
 } from "../../types/workerShift";
 
 export const workerShiftApi = baseApi.injectEndpoints({
@@ -71,6 +72,14 @@ export const workerShiftApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["AssignmentSuggestions"],
     }),
+    clearShifts: builder.mutation<ClearShiftsResponse, RangePayload>({
+      query: (params) => ({
+        url: "/worker-shifts/clear",
+        method: "DELETE",
+        params,
+      }),
+      invalidatesTags: ["AdminWorkersShifts"],
+    }),
   }),
 });
 
@@ -82,4 +91,5 @@ export const {
   useGetAssignmentSuggestionsQuery,
   useAcceptSuggestionsMutation,
   useDeclineSuggestionsMutation,
+  useClearShiftsMutation,
 } = workerShiftApi;
