@@ -142,6 +142,31 @@ export default function ShiftTemplateForm({
         </Select>
       </FormControl>
 
+      <Grid container spacing={2} sx={{ mt: 1 }}>
+        <Grid item xs={6}>
+          <TextField
+            label="Start Date (optional)"
+            name="startDate"
+            type="date"
+            value={form.startDate || ""}
+            onChange={handleInputChange}
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <TextField
+            label="End Date (optional)"
+            name="endDate"
+            type="date"
+            value={form.endDate || ""}
+            onChange={handleInputChange}
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+          />
+        </Grid>
+      </Grid>
+
       <Button
         variant="contained"
         color="primary"

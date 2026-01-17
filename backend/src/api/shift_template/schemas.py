@@ -8,6 +8,9 @@ class CreateShiftTemplateSchema(SQLModel):
     startTime: str
     endTime: str
     days: Optional[List[int]] = None
+    startDate: Optional[str] = None
+    endDate: Optional[str] = None
+
 
 class EditShiftTemplateSchema(SQLModel):
     name: Optional[str] = None
@@ -15,4 +18,6 @@ class EditShiftTemplateSchema(SQLModel):
     startTime: Optional[str] = None
     endTime: Optional[str] = None
     days: Optional[List[int]] = None
+    startDate: Optional[str] = None
+    endDate: Optional[str] = None
     

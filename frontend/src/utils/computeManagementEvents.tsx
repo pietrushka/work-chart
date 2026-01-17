@@ -55,6 +55,23 @@ export default function computeManagementEvents({
       const dow = jsDayToAppDay(getDay(d)) // 1 (Mon) - 7 (Sun)
       const key = format(d, "yyyy-MM-dd")
       for (const template of shiftTemplates) {
+        // Check if current date is within template's date range (if specified)
+        const templateStartDate = template.startDate
+          ? parseISO(template.startDate)
+          : null
+        const templateEndDate = template.endDate
+          ? parseISO(template.endDate)
+          : null
+
+        // Skip if before startDate (when startDate is provided)
+        if (templateStartDate && isBefore(d, templateStartDate)) {
+          continue
+        }
+        // Skip if after endDate (when endDate is provided)
+        if (templateEndDate && isAfter(d, templateEndDate)) {
+          continue
+        }
+
         if (template.days.includes(dow)) {
           const startDateTime = buildDateWithTime(d, template.startTime)
           let endDateTime = buildDateWithTime(d, template.endTime)

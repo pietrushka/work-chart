@@ -54,3 +54,12 @@ pytest src/api/worker_shifts/__tests__/test_worker_shift_service_pytest.py
 pytest src/api/worker_shifts/__tests__/test_worker_shift_service_pytest.py -k test_not_enough_users -v --capture=tee-sys
 
 ```
+
+MIGRATIONS
+
+source .env.local 2>/dev/null || export $(cat .env | xargs)
+alembic revision --autogenerate -m "description"
+alembic upgrade head
+
+docker compose exec app alembic upgrade head
+docker compose exec app alembic revision --autogenerate -m "description"

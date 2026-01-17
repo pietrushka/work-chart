@@ -78,6 +78,8 @@ class ShiftTemplateModel(SQLModel, table=True):
     startTime: str
     endTime: str
     days: Optional[list[int]] = Field(sa_column=Column(ARRAY(Integer)), default=None)
+    startDate: Optional[str] = Field(default=None)
+    endDate: Optional[str] = Field(default=None)
 
     shifts: List[WorkerShiftModel] = Relationship(back_populates="template")
 

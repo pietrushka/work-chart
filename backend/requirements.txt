@@ -4,6 +4,7 @@ gunicorn
 sqlmodel
 pydantic
 sqlalchemy
+alembic
 python-decouple
 psycopg2-binary
 PyJWT
