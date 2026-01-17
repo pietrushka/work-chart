@@ -55,7 +55,19 @@ pytest src/api/worker_shifts/__tests__/test_worker_shift_service_pytest.py -k te
 
 ```
 
-MIGRATIONS
+GENERATE MIGRATIONS
+
+```
+npm run migrate:generate -- "desc"
+```
+
+note: The -- passes the argument to the underlying command.
+
+APPLY MIGRATION
+
+```
+npm run migrate:apply
+```
 
 source .env.local 2>/dev/null || export $(cat .env | xargs)
 alembic revision --autogenerate -m "description"

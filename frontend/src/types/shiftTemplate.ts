@@ -8,6 +8,7 @@ export type ShiftTemplate = {
   days: Array<number>
   startDate?: string
   endDate?: string
+  created_at: string
 }
 
 export type GetShiftTemplatesResponse = {

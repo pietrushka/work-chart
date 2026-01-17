@@ -4,7 +4,9 @@
     "dev": "npm run dev:localstack && concurrently --kill-others-on-fail --names \"FE,BE\" --prefix-colors \"bgBlue.bold,bgMagenta.bold\" \"npm run dev:fe\" \"npm run dev:be\"",
     "dev:fe": "cd frontend && npm run dev",
     "dev:be": "cd backend && docker compose -f docker-compose.local.yml up",
-    "dev:localstack": "cd backend && docker compose -f docker-compose.local.yml up -d localstack && ./scripts/setup-localstack.sh"
+    "dev:localstack": "cd backend && docker compose -f docker-compose.local.yml up -d localstack && ./scripts/setup-localstack.sh",
+    "migrate:generate": "cd backend && . env/bin/activate && . .env.local && alembic revision --autogenerate -m",
+    "migrate:apply": "cd backend && . env/bin/activate && . .env.local && alembic upgrade head"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"

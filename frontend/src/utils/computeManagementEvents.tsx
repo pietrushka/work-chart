@@ -62,7 +62,12 @@ export default function computeManagementEvents({
         const templateEndDate = template.endDate
           ? parseISO(template.endDate)
           : null
+        const templateCreatedAt = parseISO(template.created_at)
 
+        // Skip if before creation date
+        if (isBefore(d, templateCreatedAt)) {
+          continue
+        }
         // Skip if before startDate (when startDate is provided)
         if (templateStartDate && isBefore(d, templateStartDate)) {
           continue
