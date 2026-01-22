@@ -43,7 +43,7 @@ function getDateRange(option: RangeOption) {
   let end: Date
 
   if (option === RangeOption.thisMonth) {
-    start = new Date(now.getFullYear(), now.getMonth(), 1)
+    start = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
     end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
   } else {
     start = new Date(now.getFullYear(), now.getMonth() + 1, 1)
@@ -79,9 +79,7 @@ export default function AutoAssignShifts() {
 
   function getEmployeeName(workerId: string) {
     const employee = employees.find((e) => e.id === workerId)
-    return employee
-      ? `${employee.first_name} ${employee.last_name}`
-      : "Unknown"
+    return employee ? `${employee.first_name} ${employee.last_name}` : "Unknown"
   }
 
   function getTemplateName(templateId: string) {
@@ -177,9 +175,7 @@ export default function AutoAssignShifts() {
                         <TableCell>
                           {getTemplateName(suggestion.template_id)}
                         </TableCell>
-                        <TableCell>
-                          {startDate.toLocaleDateString()}
-                        </TableCell>
+                        <TableCell>{startDate.toLocaleDateString()}</TableCell>
                         <TableCell>
                           {startDate.toLocaleTimeString([], {
                             hour: "2-digit",

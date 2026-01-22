@@ -115,6 +115,19 @@ def get_worker_for_shift(
         return user.id
 
 
+def timeToMinutes(timeParts: list[int]) -> int:
+    return timeParts[0] * 60 + timeParts[1]
+
+
+def timeStringToPartList(time: str) -> list[int]:
+    return list(map(int, time.split(":")))
+
+
+def timeStringToMinutes(time: str) -> int:
+    time_parts = timeStringToPartList(time)
+    return timeToMinutes(time_parts)
+
+
 def prepare_auto_assign_shifts(
     range: Range,
     worker_shifts: list[WorkerShiftModel],
@@ -134,39 +147,58 @@ def prepare_auto_assign_shifts(
     user_shift_counts = {user.id: 0 for user in users}
 
     while current_date <= end_date:
+        min_minutes = timeToMinutes(
+            [start_date.hour, start_date.minute]
+            if current_date.date() == start_date.date()
+            else [0, 0]
+        )
+        max_minutes = timeToMinutes(
+            [end_date.hour, end_date.minute]
+            if current_date.date() == end_date.date()
+            else [23, 59]
+        )
+
         weekday = current_date.isoweekday()
-        day_shift_templates = [
-            st for st in shift_templates if st.days and weekday in st.days
-        ]
+        day_shift_templates = list(
+            filter(
+                lambda st: st.days
+                and weekday in st.days
+                and timeStringToMinutes(st.startTime) > min_minutes
+                and timeStringToMinutes(st.startTime) <= max_minutes,
+                shift_templates,
+            )
+        )
 
         day_worker_shifts = [
             ws for ws in worker_shifts if ws.start_date.date() == current_date.date()
         ]
 
-        for st in day_shift_templates:
+        for shift_template in day_shift_templates:
+            start_time_parts = timeStringToPartList(shift_template.startTime)
+            end_time_parts = timeStringToPartList(shift_template.endTime)
             shift_start_date = current_date.replace(
-                hour=int(st.startTime.split(":")[0]),
-                minute=int(st.startTime.split(":")[1]),
+                hour=int(start_time_parts[0]),
+                minute=int(start_time_parts[1]),
                 second=0,
                 microsecond=0,
             )
             shift_end_date = current_date.replace(
-                hour=int(st.endTime.split(":")[0]),
-                minute=int(st.endTime.split(":")[1]),
+                hour=int(end_time_parts[0]),
+                minute=int(end_time_parts[1]),
                 second=0,
                 microsecond=0,
             )
 
             worker_id = get_worker_for_shift(
                 shift_placeholders=shift_placeholders,
-                shift_template=st,
+                shift_template=shift_template,
                 day_worker_shifts=day_worker_shifts,
                 users=users,
                 user_shift_counts=user_shift_counts,
                 shift_start_date=shift_start_date,
                 shift_end_date=shift_end_date,
             )
-            print(f"  Shift Template ID: {st.id}, Assigned Worker ID: {worker_id}")
+
             if not worker_id:
                 # If no user could be assigned (all users already have this shift)
                 raise ValueError("Cannot auto-assign shifts: not enough users provided")
@@ -174,7 +206,7 @@ def prepare_auto_assign_shifts(
             shift_placeholders.append(
                 {
                     "worker_id": worker_id,
-                    "template_id": st.id,
+                    "template_id": shift_template.id,
                     "start_date": shift_start_date,
                     "end_date": shift_end_date,
                 }
